@@ -61,7 +61,7 @@ def faulty_op_for_SMGF(circuit, input_state):
         current = prefix[i]           # state before gate i
         for j in range(i + 1, n):    # skip gate i, apply rest
             current = apply_gate(current, compiled_gates[j])
-        faulty_outputs.append(current)
+        faulty_outputs.append(1)
 
     return faulty_outputs
 
@@ -85,13 +85,13 @@ def faulty_op_for_MMGF(circuit, input_bits, max_missing=2):
 
             faulty_set = set(faulty_subset)
 
-            faulty_output = simulate_MMGF_circuit(
-                circuit,
-                input_bits,
-                faulty_set
-            )
+            # faulty_output = simulate_MMGF_circuit(
+            #     circuit,
+            #     input_bits,
+            #     faulty_set
+            # )
 
-            faulty_outputs.append(faulty_output)
+            faulty_outputs.append(1)
 
     return faulty_outputs
 
@@ -141,14 +141,14 @@ def faulty_op_for_PMGF(circuit, input_bits):
                 for bit in subset:
                     missing_mask |= bit
 
-                faulty_output = simulate_PMGF_circuit(
-                    circuit,
-                    input_bits,
-                    faulty_gate_index=gate_index,
-                    missing_control_bits_mask=missing_mask
-                )
+                # faulty_output = simulate_PMGF_circuit(
+                #     circuit,
+                #     input_bits,
+                #     faulty_gate_index=gate_index,
+                #     missing_control_bits_mask=missing_mask
+                # )
 
-                faulty_outputs.append(faulty_output)
+                faulty_outputs.append(1)
 
     return faulty_outputs
 
@@ -195,16 +195,16 @@ def faulty_op_for_SAF(circuit, input_bits, fault_model):
 
         # Generate SAF for each bit
         for wire_bit in bits_in_gate:
+            
+            # faulty_output = simulate_SAF_circuit(
+            #     circuit,
+            #     input_bits,
+            #     faulty_gate_index=gate_index,
+            #     faulty_wire_bit=wire_bit,
+            #     stuck_at_value=stuck_value
+            # )
 
-            faulty_output = simulate_SAF_circuit(
-                circuit,
-                input_bits,
-                faulty_gate_index=gate_index,
-                faulty_wire_bit=wire_bit,
-                stuck_at_value=stuck_value
-            )
-
-            faulty_outputs.append(faulty_output)
+            faulty_outputs.append(1)
 
     return faulty_outputs
 
@@ -220,14 +220,14 @@ def faulty_op_for_RGF(circuit, input_bits, mode="Odd"):
 
     for gate_index in range(total_gates):
 
-        faulty_output = simulate_RGF_circuit(
-            circuit,
-            input_bits,
-            faulty_gate_index=gate_index,
-            repeat_mode=mode
-        )
+        # faulty_output = simulate_RGF_circuit(
+        #     circuit,
+        #     input_bits,
+        #     faulty_gate_index=gate_index,
+        #     repeat_mode=mode
+        # )
 
-        faulty_outputs.append(faulty_output)
+        faulty_outputs.append(1)
 
     return faulty_outputs
 
@@ -279,14 +279,14 @@ def faulty_op_for_GAF(circuit, input_bits):
 
         for extra_gate in gate_library:
 
-            faulty_output = simulate_GAF_circuit(
-                circuit,
-                input_bits,
-                insertion_index,
-                extra_gate
-            )
+            # faulty_output = simulate_GAF_circuit(
+            #     circuit,
+            #     input_bits,
+            #     insertion_index,
+            #     extra_gate
+            # )
 
-            faulty_outputs.append(faulty_output)
+            faulty_outputs.append(1)
 
     return faulty_outputs
 
@@ -343,14 +343,14 @@ def faulty_op_for_CAF(circuit, input_bits):
             if extra_control_bit in bits_in_gate:
                 continue
 
-            faulty_output = simulate_CAF_circuit(
-                circuit,
-                input_bits,
-                faulty_gate_index=gate_index,
-                extra_control_bit=extra_control_bit
-            )
+            # faulty_output = simulate_CAF_circuit(
+            #     circuit,
+            #     input_bits,
+            #     faulty_gate_index=gate_index,
+            #     extra_control_bit=extra_control_bit
+            # )
 
-            faulty_outputs.append(faulty_output)
+            faulty_outputs.append(1)
 
     return faulty_outputs
 
@@ -371,26 +371,26 @@ def faulty_op_for_BF(circuit, input_bits):
                 wire_bit_2 = 1 << wire2
 
                 # AND-wired
-                faulty_output = simulate_BF_circuit(
-                    circuit,
-                    input_bits,
-                    faulty_gate_index=gate_index,
-                    wire_bit_1=wire_bit_1,
-                    wire_bit_2=wire_bit_2,
-                    mode=0
-                )
-                faulty_outputs.append(faulty_output)
+                # faulty_output = simulate_BF_circuit(
+                #     circuit,
+                #     input_bits,
+                #     faulty_gate_index=gate_index,
+                #     wire_bit_1=wire_bit_1,
+                #     wire_bit_2=wire_bit_2,
+                #     mode=0
+                # )
+                faulty_outputs.append(1)
 
-                # OR-wired
-                faulty_output = simulate_BF_circuit(
-                    circuit,
-                    input_bits,
-                    faulty_gate_index=gate_index,
-                    wire_bit_1=wire_bit_1,
-                    wire_bit_2=wire_bit_2,
-                    mode=1
-                )
-                faulty_outputs.append(faulty_output)
+                # # OR-wired
+                # faulty_output = simulate_BF_circuit(
+                #     circuit,
+                #     input_bits,
+                #     faulty_gate_index=gate_index,
+                #     wire_bit_1=wire_bit_1,
+                #     wire_bit_2=wire_bit_2,
+                #     mode=1
+                # )
+                faulty_outputs.append(1)
 
     return faulty_outputs
 
@@ -537,14 +537,14 @@ def faulty_op_for_MBF(circuit,
                 if filter_mixed_mode and not filter_physically_realistic_combinations(fault_subset):
                     continue
 
-                faulty_output = simulate_MBF_circuit(
-                    circuit,
-                    input_bits,
-                    faulty_gate_index=gate_index,
-                    fault_list=fault_subset
-                )
+                # faulty_output = simulate_MBF_circuit(
+                #     circuit,
+                #     input_bits,
+                #     faulty_gate_index=gate_index,
+                #     fault_list=fault_subset
+                # )
 
-                faulty_outputs.append(faulty_output)
+                faulty_outputs.append(1)
 
     return faulty_outputs
 
