@@ -70,7 +70,7 @@ def faulty_op_for_SMGF(circuit, input_state):
 from itertools import combinations
 
 
-def faulty_op_for_MMGF(circuit, input_bits, max_missing=2):
+def faulty_op_for_MMGF(circuit, input_bits, max_missing=2, sample_limit=10000):
     """
     Generate outputs for all MMGF fault combinations.
     Capped at max_missing simultaneously missing gates to avoid 2^n blowup.
@@ -81,20 +81,35 @@ def faulty_op_for_MMGF(circuit, input_bits, max_missing=2):
 
     max_missing = min(max_missing, total_gates - 1)
     fault_count = 0
-    for num_missing in range(1, max_missing + 1):
+    if total_gates < 50:
+        for num_missing in range(1, max_missing + 1):
 
-        for faulty_subset in combinations(range(total_gates), num_missing):
+            for faulty_subset in combinations(range(total_gates), num_missing):
 
-            faulty_set = set(faulty_subset)
+                # faulty_set = set(faulty_subset)
 
-            # faulty_output = simulate_MMGF_circuit(
-            #     circuit,
-            #     input_bits,
-            #     faulty_set
-            # )
-            fault_count += 1
-            # faulty_outputs.append(1)
+                # faulty_output = simulate_MMGF_circuit(
+                #     circuit,
+                #     input_bits,
+                #     faulty_set
+                # )
+                fault_count += 1
+                # faulty_outputs.append(1)
 
+        return fault_count
+    
+    for _ in range(sample_limit):
+        num_to_drop = random.randint(1, max_missing)
+        faulty_subset = random.sample(range(total_gates), num_to_drop)
+        # faulty_set = set(faulty_subset)
+
+        # faulty_output = simulate_MMGF_circuit(
+        #     circuit,
+        #     input_bits,
+        #     faulty_set
+        # )
+        fault_count += 1
+        # faulty_outputs.append(1)
     return fault_count
 
 
@@ -283,16 +298,29 @@ def faulty_op_for_GAF(circuit, input_bits):
     # so valid range is -1 to total_gates - 1  →  n+1 positions total
     for insertion_index in range(-1, total_gates):
 
-        for extra_gate in gate_library:
+        # for extra_gate in gate_library:
 
-            # faulty_output = simulate_GAF_circuit(
-            #     circuit,
-            #     input_bits,
-            #     insertion_index,
-            #     extra_gate
-            # )
-            fault_count += 1
-            # faulty_outputs.append(1)
+        #     # faulty_output = simulate_GAF_circuit(
+        #     #     circuit,
+        #     #     input_bits,
+        #     #     insertion_index,
+        #     #     extra_gate
+        #     # )
+        #     fault_count += 1
+        #     # faulty_outputs.append(1)
+        # Randomly choose one gate
+        extra_gate = random.choice(gate_library)
+
+        # faulty_output = simulate_GAF_circuit(
+        #     circuit,
+        #     input_bits,
+        #     insertion_index,
+        #     extra_gate
+        # )
+
+        # faulty_outputs.append(faulty_output)
+        fault_count += 1
+        
 
     return fault_count
 
