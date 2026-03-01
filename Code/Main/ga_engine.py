@@ -695,7 +695,7 @@ class GeneticAlgorithm:
         fault_free_output = simulate_fault_free(self.circuit, vector)
         faulty_outputs = get_all_faulty_outputs(
             self.circuit, vector, self.faultModel)
-        self.cumulatedFaults = len(faulty_outputs)
+        self.cumulatedFaults = faulty_outputs
 
         # detected_fault_array = self.get_detected_faults_row(fault_free_output, faulty_outputs)
         # detected = int(np.sum(detected_fault_array))
