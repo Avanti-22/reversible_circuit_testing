@@ -603,7 +603,7 @@ def get_all_faulty_outputs(circuit, testVec, fault_model):
 
     # MMGF FAULT
     elif fault_model == "MMGF":
-        return faulty_op_for_MMGF(circuit, testVec, max_missing=3)
+        return faulty_op_for_MMGF(circuit, testVec, max_missing=2)
 
     # RGF FAULT
     elif fault_model == "RGF":
