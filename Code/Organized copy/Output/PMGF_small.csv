@@ -1,0 +1,14 @@
+Circuit Name,No of Lines,No of Gates,Library,Fault Model,Population Size,Threshold,Total Faults,Detected Faults,Fault Coverage,Minimal Vector Set,Execution Time,Detected Fault Locations
+3_17_13,3,6,MCT,PMGF,20,100.0,22,0,4.545454545454546,"[7, 5, 6]",5.8439999999973224,set()
+4_49_17,4,12,MCT,PMGF,20,100.0,52,1,0.0,[],180.0,{'Level_11_Wires_[0]'}
+4gt12-v0_86,5,14,MCT,PMGF,20,100.0,85,1,0.0,[],180.0,{'Level_13_Wires_[0]'}
+alu-v0_26,5,6,MCT,PMGF,20,100.0,32,0,0.0,[],180.0,set()
+cnt3-5_180,16,20,MCT,PMGF,20,100.0,160,1,0.0,[],180.0,{'Level_19_Wires_[0]'}
+cycle10_2_110,12,19,MCT,PMGF,20,100.0,6117,1,0.0,[],180.0,{'Level_18_Wires_[0]'}
+graycode6_47,6,5,NCT,PMGF,20,100.0,15,1,0.0,[],180.0,{'Level_4_Wires_[0]'}
+ham3_102,3,5,MCT,PMGF,20,100.0,18,0,5.555555555555555,"[6, 5, 7]",3.8910000000032596,set()
+hwb4_51,4,11,MCF,PMGF,20,100.0,79,1,0.0,[],180.0,{'Level_10_Wires_[0]'}
+mod5d1_63,5,7,MCT,PMGF,20,100.0,25,1,0.0,[],180.0,{'Level_6_Wires_[0]'}
+one-two-three-v0_97,5,11,MCT,PMGF,20,100.0,93,2,0.0,[],180.0,"{'Level_10_Wires_[0]', 'Level_10_Wires_[1]'}"
+rd32-v0_66,4,4,MCT,PMGF,20,100.0,20,1,5.0,"[14, 15, 4, 5]",180.0,{'Level_3_Wires_[0]'}
+sys6-v0_144,10,15,MCT+P,PMGF,20,100.0,97,1,0.0,[],180.0,{'Level_14_Wires_[0]'}

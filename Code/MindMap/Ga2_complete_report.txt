@@ -1,0 +1,802 @@
+================================================================================
+CODE ANALYSIS REPORT: Ga2.py
+================================================================================
+
+ALGORITHM: Ga2
+============================================================
+
+OVERVIEW:
+  - Total Functions: 0
+  - Total Classes: 2
+  - Total Imports: 8
+
+ALGORITHM STEPS:
+
+Step 1: Import Dependencies
+  - Import List from typing
+  - Import Tuple from typing
+  - Import Set from typing
+  - Import module: time
+  - Import module: random
+  - Import module: itertools
+  - Import module: numpy
+  - Import * from SimulatorsfaultCoverageFindingUtilities
+
+Step 2: Define Class 'TimeLimitExceeded'
+  - Inherits from: Exception
+
+Step 3: Define Class 'GeneticAlgorithm'
+  - Method: __init__
+    - Parameters: self, circuit, faultModel, population_size, max_generations, threshold, time_limit_seconds, skip_minimization
+    - Purpose: Initialize the GA
+    - Control Flow:
+      * IF statement at line 49
+  - Method: _start_timer
+    - Parameters: self
+    - Function Calls: time.monotonic
+  - Method: _update_execution_time
+    - Parameters: self
+    - Control Flow:
+      * IF statement at line 66
+    - Function Calls: time.monotonic
+  - Method: _check_time_limit
+    - Parameters: self
+    - Control Flow:
+      * IF statement at line 72
+      * IF statement at line 73
+    - Function Calls: self._update_execution_time
+    - Returns: value
+  - Method: stage_i_input_Parameter_extratcion
+    - Parameters: self
+  - Method: stage_ii_TV_selection
+    - Parameters: self, test_Size
+    - Purpose: Stage II: Test Vector Selection (Random Search)
+    - Control Flow:
+      * IF statement at line 96
+      * IF statement at line 100
+    - Function Calls: min, self._check_time_limit, range, len, list, random.sample
+    - Returns: value
+  - Method: represent_the_vec_in_binary
+    - Parameters: self, testVector
+    - Control Flow:
+      * FOR statement at line 113
+    - Function Calls: format, int, binaryVector.append
+    - Returns: value
+  - Method: obtain_detected_fault_matrix
+    - Parameters: self, faultFreeOutput, faultyOutputs
+    - Control Flow:
+      * FOR statement at line 122
+      * IF statement at line 124
+    - Function Calls: detectedFaultsForCurrentTV.append, len, range
+    - Returns: value
+  - Method: stage_iii_fitness_function_computation
+    - Parameters: self, vector
+    - Purpose: Stage III: Fitness Function Computation
+    - Control Flow:
+      * IF statement at line 141
+    - Function Calls: self.obtain_detected_fault_matrix, self.represent_the_vec_in_binary, detectedFaultList.count, self._check_time_limit, get_all_faulty_outputs, len, simulate_circuit
+    - Returns: value
+  - Method: compute_fitness_for_population
+    - Parameters: self, initPop
+    - Control Flow:
+      * IF statement at line 165
+      * FOR statement at line 171
+      * IF statement at line 173
+      * IF statement at line 182
+    - Function Calls: print, self._check_time_limit, self.stage_iii_fitness_function_computation, range, fitnessFunction.append, len
+    - Returns: value
+  - Method: stage_iv_roulette_wheel_selection
+    - Parameters: self, fitnessFunction, population
+    - Purpose: Stage IV: Roulette Wheel Selection
+    - Control Flow:
+      * IF statement at line 201
+      * IF statement at line 208
+      * FOR statement at line 214
+      * IF statement at line 215
+    - Function Calls: print, self._check_time_limit, parent_pairs.append, range, len, random.choices, sum
+    - Returns: value
+  - Method: represent_bin_in_int
+    - Parameters: self, bin_vec_list
+    - Control Flow:
+      * FOR statement at line 226
+    - Function Calls: str, bit_str.append, int, .join
+    - Returns: value
+  - Method: stage_v_crossover
+    - Parameters: self, parent_pairs
+    - Purpose: Stage V: Reproduction and Cross-Over
+    - Control Flow:
+      * IF statement at line 245
+      * FOR statement at line 250
+      * IF statement at line 251
+    - Function Calls: self.represent_the_vec_in_binary, self._check_time_limit, self.represent_bin_in_int, random.randint, children.append
+    - Returns: value
+  - Method: stage_vi_mutation
+    - Parameters: self, children
+    - Purpose: Stage VI: Mutation
+    - Control Flow:
+      * IF statement at line 279
+      * FOR statement at line 287
+      * IF statement at line 288
+      * IF statement at line 294
+    - Function Calls: self.represent_the_vec_in_binary, self._check_time_limit, self.represent_bin_in_int, random.randint, mutated_children.append, len, mutated_children.extend
+    - Returns: value
+  - Method: stage_vii_test_population_generation
+    - Parameters: self, init_pop, child_pop
+    - Purpose: Stage VII: Test Population Generation
+    - Control Flow:
+      * IF statement at line 331
+      * IF statement at line 339
+    - Function Calls: zip, self._check_time_limit, self.compute_fitness_for_population, set, list, sorted
+    - Returns: value
+  - Method: stage_viii_minimal_test_set
+    - Parameters: self, fin_pop, L
+    - Purpose: Stage VIII: Minimal Test Set Generation
+    - Control Flow:
+      * IF statement at line 360
+      * FOR statement at line 366
+      * IF statement at line 368
+      * FOR statement at line 372
+      * IF statement at line 373
+      * IF statement at line 378
+    - Function Calls: print, min, self._check_time_limit, max, range, self.find_best_combination, len, list, itertools.combinations, self.compute_combined_coverage
+    - Returns: value
+  - Method: compute_combined_coverage
+    - Parameters: self, test_set
+    - Purpose: Compute combined fault coverage for a set of test vectors
+    - Control Flow:
+      * IF statement at line 396
+      * FOR statement at line 402
+      * IF statement at line 414
+      * IF statement at line 403
+      * IF statement at line 408
+      * FOR statement at line 411
+    - Function Calls: self._check_time_limit, self.stage_iii_fitness_function_computation, range, len, all_detected.count
+    - Returns: value
+  - Method: find_best_combination
+    - Parameters: self, vectors
+    - Purpose: Find the best combination of vectors for maximum coverage
+    - Control Flow:
+      * IF statement at line 425
+      * FOR statement at line 433
+      * IF statement at line 435
+      * FOR statement at line 438
+      * IF statement at line 440
+      * IF statement at line 443
+    - Function Calls: min, self._check_time_limit, range, len, list, itertools.combinations, self.compute_combined_coverage
+    - Returns: value
+  - Method: run
+    - Parameters: self, verbose
+    - Purpose: Run the complete GA algorithm
+    - Control Flow:
+      * IF statement at line 461
+      * IF statement at line 470
+      * IF statement at line 482
+      * FOR statement at line 493
+      * IF statement at line 591
+      * IF statement at line 494
+      * IF statement at line 501
+      * IF statement at line 510
+      * IF statement at line 521
+      * IF statement at line 528
+      * IF statement at line 540
+      * IF statement at line 544
+      * IF statement at line 556
+      * IF statement at line 561
+      * IF statement at line 567
+      * IF statement at line 578
+      * IF statement at line 568
+    - Function Calls: self.stage_i_input_Parameter_extratcion, range, self.stage_viii_minimal_test_set, self.stage_vi_mutation, self.stage_vii_test_population_generation, self.save_results, self.stage_iv_roulette_wheel_selection, self._start_timer, print, self._check_time_limit, self.compute_fitness_for_population, max, sum, self.stage_v_crossover, finPop.extend, self.stage_ii_TV_selection, populn.extend, len, self.compute_combined_coverage
+    - Returns: value
+  - Method: save_results
+    - Parameters: self
+    - Function Calls: len, self.detectedFaults.count, self._update_execution_time
+    - Returns: value
+
+
+================================================================================
+
+CALL HIERARCHY
+============================================================
+
+Function Call Graph:
+
+GeneticAlgorithm._check_time_limit()
+  ├─ Calls:
+  │  └─ self._update_execution_time()
+
+GeneticAlgorithm._start_timer()
+  ├─ Calls:
+  │  └─ time.monotonic()
+
+GeneticAlgorithm._update_execution_time()
+  ├─ Calls:
+  │  └─ time.monotonic()
+
+GeneticAlgorithm.compute_combined_coverage()
+  ├─ Calls:
+  │  └─ all_detected.count()
+  │  └─ len()
+  │  └─ range()
+  │  └─ self._check_time_limit()
+  │  └─ self.stage_iii_fitness_function_computation()
+
+GeneticAlgorithm.compute_fitness_for_population()
+  ├─ Calls:
+  │  └─ fitnessFunction.append()
+  │  └─ len()
+  │  └─ print()
+  │  └─ range()
+  │  └─ self._check_time_limit()
+  │  └─ self.stage_iii_fitness_function_computation()
+
+GeneticAlgorithm.find_best_combination()
+  ├─ Calls:
+  │  └─ itertools.combinations()
+  │  └─ len()
+  │  └─ list()
+  │  └─ min()
+  │  └─ range()
+  │  └─ self._check_time_limit()
+  │  └─ self.compute_combined_coverage()
+
+GeneticAlgorithm.obtain_detected_fault_matrix()
+  ├─ Calls:
+  │  └─ detectedFaultsForCurrentTV.append()
+  │  └─ len()
+  │  └─ range()
+
+GeneticAlgorithm.represent_bin_in_int()
+  ├─ Calls:
+  │  └─ .join()
+  │  └─ bit_str.append()
+  │  └─ int()
+  │  └─ str()
+
+GeneticAlgorithm.represent_the_vec_in_binary()
+  ├─ Calls:
+  │  └─ binaryVector.append()
+  │  └─ format()
+  │  └─ int()
+
+GeneticAlgorithm.run()
+  ├─ Calls:
+  │  └─ finPop.extend()
+  │  └─ len()
+  │  └─ max()
+  │  └─ populn.extend()
+  │  └─ print()
+  │  └─ range()
+  │  └─ self._check_time_limit()
+  │  └─ self._start_timer()
+  │  └─ self.compute_combined_coverage()
+  │  └─ self.compute_fitness_for_population()
+  │  └─ self.save_results()
+  │  └─ self.stage_i_input_Parameter_extratcion()
+  │  └─ self.stage_ii_TV_selection()
+  │  └─ self.stage_iv_roulette_wheel_selection()
+  │  └─ self.stage_v_crossover()
+  │  └─ self.stage_vi_mutation()
+  │  └─ self.stage_vii_test_population_generation()
+  │  └─ self.stage_viii_minimal_test_set()
+  │  └─ sum()
+
+GeneticAlgorithm.save_results()
+  ├─ Calls:
+  │  └─ len()
+  │  └─ self._update_execution_time()
+  │  └─ self.detectedFaults.count()
+
+GeneticAlgorithm.stage_ii_TV_selection()
+  ├─ Calls:
+  │  └─ len()
+  │  └─ list()
+  │  └─ min()
+  │  └─ random.sample()
+  │  └─ range()
+  │  └─ self._check_time_limit()
+
+GeneticAlgorithm.stage_iii_fitness_function_computation()
+  ├─ Calls:
+  │  └─ detectedFaultList.count()
+  │  └─ get_all_faulty_outputs()
+  │  └─ len()
+  │  └─ self._check_time_limit()
+  │  └─ self.obtain_detected_fault_matrix()
+  │  └─ self.represent_the_vec_in_binary()
+  │  └─ simulate_circuit()
+
+GeneticAlgorithm.stage_iv_roulette_wheel_selection()
+  ├─ Calls:
+  │  └─ len()
+  │  └─ parent_pairs.append()
+  │  └─ print()
+  │  └─ random.choices()
+  │  └─ range()
+  │  └─ self._check_time_limit()
+  │  └─ sum()
+
+GeneticAlgorithm.stage_v_crossover()
+  ├─ Calls:
+  │  └─ children.append()
+  │  └─ random.randint()
+  │  └─ self._check_time_limit()
+  │  └─ self.represent_bin_in_int()
+  │  └─ self.represent_the_vec_in_binary()
+
+GeneticAlgorithm.stage_vi_mutation()
+  ├─ Calls:
+  │  └─ len()
+  │  └─ mutated_children.append()
+  │  └─ mutated_children.extend()
+  │  └─ random.randint()
+  │  └─ self._check_time_limit()
+  │  └─ self.represent_bin_in_int()
+  │  └─ self.represent_the_vec_in_binary()
+
+GeneticAlgorithm.stage_vii_test_population_generation()
+  ├─ Calls:
+  │  └─ list()
+  │  └─ self._check_time_limit()
+  │  └─ self.compute_fitness_for_population()
+  │  └─ set()
+  │  └─ sorted()
+  │  └─ zip()
+
+GeneticAlgorithm.stage_viii_minimal_test_set()
+  ├─ Calls:
+  │  └─ itertools.combinations()
+  │  └─ len()
+  │  └─ list()
+  │  └─ max()
+  │  └─ min()
+  │  └─ print()
+  │  └─ range()
+  │  └─ self._check_time_limit()
+  │  └─ self.compute_combined_coverage()
+  │  └─ self.find_best_combination()
+
+============================================================
+EXECUTION FLOW ANALYSIS:
+
+Entry Points (not called by other functions):
+  - GeneticAlgorithm._check_time_limit()
+    └─> self._update_execution_time()
+  - GeneticAlgorithm._start_timer()
+    └─> time.monotonic()
+  - GeneticAlgorithm._update_execution_time()
+    └─> time.monotonic()
+  - GeneticAlgorithm.compute_combined_coverage()
+    └─> all_detected.count()
+    └─> len()
+    └─> range()
+    └─> self._check_time_limit()
+    └─> self.stage_iii_fitness_function_computation()
+  - GeneticAlgorithm.compute_fitness_for_population()
+    └─> fitnessFunction.append()
+    └─> len()
+    └─> print()
+    └─> range()
+    └─> self._check_time_limit()
+    └─> self.stage_iii_fitness_function_computation()
+  - GeneticAlgorithm.find_best_combination()
+    └─> itertools.combinations()
+    └─> len()
+    └─> list()
+    └─> min()
+    └─> range()
+    └─> self._check_time_limit()
+    └─> self.compute_combined_coverage()
+  - GeneticAlgorithm.obtain_detected_fault_matrix()
+    └─> detectedFaultsForCurrentTV.append()
+    └─> len()
+    └─> range()
+  - GeneticAlgorithm.represent_bin_in_int()
+    └─> .join()
+    └─> bit_str.append()
+    └─> int()
+    └─> str()
+  - GeneticAlgorithm.represent_the_vec_in_binary()
+    └─> binaryVector.append()
+    └─> format()
+    └─> int()
+  - GeneticAlgorithm.run()
+    └─> finPop.extend()
+    └─> len()
+    └─> max()
+    └─> populn.extend()
+    └─> print()
+    └─> range()
+    └─> self._check_time_limit()
+    └─> self._start_timer()
+    └─> self.compute_combined_coverage()
+    └─> self.compute_fitness_for_population()
+    └─> self.save_results()
+    └─> self.stage_i_input_Parameter_extratcion()
+    └─> self.stage_ii_TV_selection()
+    └─> self.stage_iv_roulette_wheel_selection()
+    └─> self.stage_v_crossover()
+    └─> self.stage_vi_mutation()
+    └─> self.stage_vii_test_population_generation()
+    └─> self.stage_viii_minimal_test_set()
+    └─> sum()
+  - GeneticAlgorithm.save_results()
+    └─> len()
+    └─> self._update_execution_time()
+    └─> self.detectedFaults.count()
+  - GeneticAlgorithm.stage_ii_TV_selection()
+    └─> len()
+    └─> list()
+    └─> min()
+    └─> random.sample()
+    └─> range()
+    └─> self._check_time_limit()
+  - GeneticAlgorithm.stage_iii_fitness_function_computation()
+    └─> detectedFaultList.count()
+    └─> get_all_faulty_outputs()
+    └─> len()
+    └─> self._check_time_limit()
+    └─> self.obtain_detected_fault_matrix()
+    └─> self.represent_the_vec_in_binary()
+    └─> simulate_circuit()
+  - GeneticAlgorithm.stage_iv_roulette_wheel_selection()
+    └─> len()
+    └─> parent_pairs.append()
+    └─> print()
+    └─> random.choices()
+    └─> range()
+    └─> self._check_time_limit()
+    └─> sum()
+  - GeneticAlgorithm.stage_v_crossover()
+    └─> children.append()
+    └─> random.randint()
+    └─> self._check_time_limit()
+    └─> self.represent_bin_in_int()
+    └─> self.represent_the_vec_in_binary()
+  - GeneticAlgorithm.stage_vi_mutation()
+    └─> len()
+    └─> mutated_children.append()
+    └─> mutated_children.extend()
+    └─> random.randint()
+    └─> self._check_time_limit()
+    └─> self.represent_bin_in_int()
+    └─> self.represent_the_vec_in_binary()
+  - GeneticAlgorithm.stage_vii_test_population_generation()
+    └─> list()
+    └─> self._check_time_limit()
+    └─> self.compute_fitness_for_population()
+    └─> set()
+    └─> sorted()
+    └─> zip()
+  - GeneticAlgorithm.stage_viii_minimal_test_set()
+    └─> itertools.combinations()
+    └─> len()
+    └─> list()
+    └─> max()
+    └─> min()
+    └─> print()
+    └─> range()
+    └─> self._check_time_limit()
+    └─> self.compute_combined_coverage()
+    └─> self.find_best_combination()
+
+
+================================================================================
+
+PSEUDOCODE:
+================================================================================
+PROGRAM Ga2
+
+// Import required modules
+IMPORT List FROM typing
+IMPORT Tuple FROM typing
+IMPORT Set FROM typing
+IMPORT time
+IMPORT random
+IMPORT itertools
+IMPORT numpy
+IMPORT * FROM SimulatorsfaultCoverageFindingUtilities
+
+CLASS TimeLimitExceeded
+    INHERITS FROM Exception
+
+END CLASS
+
+CLASS GeneticAlgorithm
+
+    METHOD __init__(self, circuit, faultModel, population_size, max_generations, threshold, time_limit_seconds, skip_minimization)
+        // Initialize the GA
+        IF skip_minimization is None THEN
+            // conditional logic
+        END IF
+    END METHOD
+
+    METHOD _start_timer(self)
+        // Calls: time.monotonic
+    END METHOD
+
+    METHOD _update_execution_time(self)
+        IF self._start_time is not None THEN
+            // conditional logic
+        END IF
+        // Calls: time.monotonic
+    END METHOD
+
+    METHOD _check_time_limit(self)
+        IF self.execution_time >= self.time_limit_seconds THEN
+            // conditional logic
+        END IF
+        IF not self._time_limit_exceeded THEN
+            // conditional logic
+        END IF
+        // Calls: self._update_execution_time
+        RETURN result
+    END METHOD
+
+    METHOD stage_i_input_Parameter_extratcion(self)
+    END METHOD
+
+    METHOD stage_ii_TV_selection(self, test_Size)
+        // Stage II: Test Vector Selection (Random Search)
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        IF test_Size is None THEN
+            // conditional logic
+        END IF
+        // Calls: min, self._check_time_limit, range, len, list, random.sample
+        RETURN result
+    END METHOD
+
+    METHOD represent_the_vec_in_binary(self, testVector)
+        FOR bit IN vec DO
+            // loop body
+        END FOR
+        // Calls: format, int, binaryVector.append
+        RETURN result
+    END METHOD
+
+    METHOD obtain_detected_fault_matrix(self, faultFreeOutput, faultyOutputs)
+        FOR i IN range(len(faultyOutputs)) DO
+            // loop body
+        END FOR
+        IF faultyOutputs[i] != faultFreeOutput THEN
+            // conditional logic
+        END IF
+        // Calls: detectedFaultsForCurrentTV.append, len, range
+        RETURN result
+    END METHOD
+
+    METHOD stage_iii_fitness_function_computation(self, vector)
+        // Stage III: Fitness Function Computation
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        // Calls: self.obtain_detected_fault_matrix, self.represent_the_vec_in_binary, detectedFaultList.count, self._check_time_limit, get_all_faulty_outputs, len, simulate_circuit
+        RETURN result
+    END METHOD
+
+    METHOD compute_fitness_for_population(self, initPop)
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        FOR i IN range(len(initPop)) DO
+            // loop body
+        END FOR
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        IF fitnessFunction[i] >= self.threshold THEN
+            // conditional logic
+        END IF
+        // Calls: print, self._check_time_limit, self.stage_iii_fitness_function_computation, range, fitnessFunction.append, len
+        RETURN result
+    END METHOD
+
+    METHOD stage_iv_roulette_wheel_selection(self, fitnessFunction, population)
+        // Stage IV: Roulette Wheel Selection
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        IF total_fitness == 0 THEN
+            // conditional logic
+        END IF
+        FOR _ IN range(self.n) DO
+            // loop body
+        END FOR
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        // Calls: print, self._check_time_limit, parent_pairs.append, range, len, random.choices, sum
+        RETURN result
+    END METHOD
+
+    METHOD represent_bin_in_int(self, bin_vec_list)
+        FOR bit IN bin_vec_list DO
+            // loop body
+        END FOR
+        // Calls: str, bit_str.append, int, .join
+        RETURN result
+    END METHOD
+
+    METHOD stage_v_crossover(self, parent_pairs)
+        // Stage V: Reproduction and Cross-Over
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        FOR (parent1, parent2) IN parent_pairs DO
+            // loop body
+        END FOR
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        // Calls: self.represent_the_vec_in_binary, self._check_time_limit, self.represent_bin_in_int, random.randint, children.append
+        RETURN result
+    END METHOD
+
+    METHOD stage_vi_mutation(self, children)
+        // Stage VI: Mutation
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        FOR child IN children DO
+            // loop body
+        END FOR
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        IF num < 10 THEN
+            // conditional logic
+        END IF
+        // Calls: self.represent_the_vec_in_binary, self._check_time_limit, self.represent_bin_in_int, random.randint, mutated_children.append, len, mutated_children.extend
+        RETURN result
+    END METHOD
+
+    METHOD stage_vii_test_population_generation(self, init_pop, child_pop)
+        // Stage VII: Test Population Generation
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        IF not fitnessFunct THEN
+            // conditional logic
+        END IF
+        // Calls: zip, self._check_time_limit, self.compute_fitness_for_population, set, list, sorted
+        RETURN result
+    END METHOD
+
+    METHOD stage_viii_minimal_test_set(self, fin_pop, L)
+        // Stage VIII: Minimal Test Set Generation
+        IF L is None THEN
+            // conditional logic
+        END IF
+        FOR combo_size IN range(L, min(len(vectors) + 1, self.population_size + 1)) DO
+            // loop body
+        END FOR
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        FOR combo IN itertools.combinations(vectors, combo_size) DO
+            // loop body
+        END FOR
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        IF coverage >= self.threshold THEN
+            // conditional logic
+        END IF
+        // Calls: print, min, self._check_time_limit, max, range, self.find_best_combination, len, list, itertools.combinations, self.compute_combined_coverage
+        RETURN result
+    END METHOD
+
+    METHOD compute_combined_coverage(self, test_set)
+        // Compute combined fault coverage for a set of test vectors
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        FOR vector IN test_set DO
+            // loop body
+        END FOR
+        IF all_detected is None THEN
+            // conditional logic
+        END IF
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        IF all_detected is None THEN
+            // conditional logic
+        END IF
+        FOR loc IN range(len(detectedFaults)) DO
+            // loop body
+        END FOR
+        // Calls: self._check_time_limit, self.stage_iii_fitness_function_computation, range, len, all_detected.count
+        RETURN result
+    END METHOD
+
+    METHOD find_best_combination(self, vectors)
+        // Find the best combination of vectors for maximum coverage
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        FOR size IN range(1, min(len(vectors) + 1, self.n + 1)) DO
+            // loop body
+        END FOR
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        FOR combo IN itertools.combinations(vectors[:min(10, len(vectors))], size) DO
+            // loop body
+        END FOR
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        IF coverage > self.best_coverage THEN
+            // conditional logic
+        END IF
+        // Calls: min, self._check_time_limit, range, len, list, itertools.combinations, self.compute_combined_coverage
+        RETURN result
+    END METHOD
+
+    METHOD run(self, verbose)
+        // Run the complete GA algorithm
+        IF verbose is not None THEN
+            // conditional logic
+        END IF
+        IF verbose THEN
+            // conditional logic
+        END IF
+        IF not populn THEN
+            // conditional logic
+        END IF
+        FOR generation IN range(self.max_generations) DO
+            // loop body
+        END FOR
+        IF self._time_limit_exceeded THEN
+            // conditional logic
+        END IF
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        IF verbose THEN
+            // conditional logic
+        END IF
+        IF not fitnessFunct THEN
+            // conditional logic
+        END IF
+        IF not parent_pairs THEN
+            // conditional logic
+        END IF
+        IF not children THEN
+            // conditional logic
+        END IF
+        IF not fin_pop THEN
+            // conditional logic
+        END IF
+        IF self.skip_minimization or self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        IF verbose THEN
+            // conditional logic
+        END IF
+        IF coverage > self.best_coverage THEN
+            // conditional logic
+        END IF
+        IF coverage >= self.threshold THEN
+            // conditional logic
+        END IF
+        IF len(test_set) < self.population_size THEN
+            // conditional logic
+        END IF
+        IF verbose THEN
+            // conditional logic
+        END IF
+        // Calls: self.stage_i_input_Parameter_extratcion, range, self.stage_viii_minimal_test_set, self.stage_vi_mutation, self.stage_vii_test_population_generation, self.save_results, self.stage_iv_roulette_wheel_selection, self._start_timer, print, self._check_time_limit, self.compute_fitness_for_population, max, sum, self.stage_v_crossover, finPop.extend, self.stage_ii_TV_selection, populn.extend, len, self.compute_combined_coverage
+        RETURN result
+    END METHOD
+
+    METHOD save_results(self)
+        // Calls: len, self.detectedFaults.count, self._update_execution_time
+        RETURN result
+    END METHOD
+
+END CLASS
+
+END PROGRAM

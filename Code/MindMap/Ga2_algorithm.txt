@@ -1,0 +1,189 @@
+ALGORITHM: Ga2
+============================================================
+
+OVERVIEW:
+  - Total Functions: 0
+  - Total Classes: 2
+  - Total Imports: 8
+
+ALGORITHM STEPS:
+
+Step 1: Import Dependencies
+  - Import List from typing
+  - Import Tuple from typing
+  - Import Set from typing
+  - Import module: time
+  - Import module: random
+  - Import module: itertools
+  - Import module: numpy
+  - Import * from SimulatorsfaultCoverageFindingUtilities
+
+Step 2: Define Class 'TimeLimitExceeded'
+  - Inherits from: Exception
+
+Step 3: Define Class 'GeneticAlgorithm'
+  - Method: __init__
+    - Parameters: self, circuit, faultModel, population_size, max_generations, threshold, time_limit_seconds, skip_minimization
+    - Purpose: Initialize the GA
+    - Control Flow:
+      * IF statement at line 49
+  - Method: _start_timer
+    - Parameters: self
+    - Function Calls: time.monotonic
+  - Method: _update_execution_time
+    - Parameters: self
+    - Control Flow:
+      * IF statement at line 66
+    - Function Calls: time.monotonic
+  - Method: _check_time_limit
+    - Parameters: self
+    - Control Flow:
+      * IF statement at line 72
+      * IF statement at line 73
+    - Function Calls: self._update_execution_time
+    - Returns: value
+  - Method: stage_i_input_Parameter_extratcion
+    - Parameters: self
+  - Method: stage_ii_TV_selection
+    - Parameters: self, test_Size
+    - Purpose: Stage II: Test Vector Selection (Random Search)
+    - Control Flow:
+      * IF statement at line 96
+      * IF statement at line 100
+    - Function Calls: min, self._check_time_limit, range, len, list, random.sample
+    - Returns: value
+  - Method: represent_the_vec_in_binary
+    - Parameters: self, testVector
+    - Control Flow:
+      * FOR statement at line 113
+    - Function Calls: format, int, binaryVector.append
+    - Returns: value
+  - Method: obtain_detected_fault_matrix
+    - Parameters: self, faultFreeOutput, faultyOutputs
+    - Control Flow:
+      * FOR statement at line 122
+      * IF statement at line 124
+    - Function Calls: detectedFaultsForCurrentTV.append, len, range
+    - Returns: value
+  - Method: stage_iii_fitness_function_computation
+    - Parameters: self, vector
+    - Purpose: Stage III: Fitness Function Computation
+    - Control Flow:
+      * IF statement at line 141
+    - Function Calls: self.obtain_detected_fault_matrix, self.represent_the_vec_in_binary, detectedFaultList.count, self._check_time_limit, get_all_faulty_outputs, len, simulate_circuit
+    - Returns: value
+  - Method: compute_fitness_for_population
+    - Parameters: self, initPop
+    - Control Flow:
+      * IF statement at line 165
+      * FOR statement at line 171
+      * IF statement at line 173
+      * IF statement at line 182
+    - Function Calls: print, self._check_time_limit, self.stage_iii_fitness_function_computation, range, fitnessFunction.append, len
+    - Returns: value
+  - Method: stage_iv_roulette_wheel_selection
+    - Parameters: self, fitnessFunction, population
+    - Purpose: Stage IV: Roulette Wheel Selection
+    - Control Flow:
+      * IF statement at line 201
+      * IF statement at line 208
+      * FOR statement at line 214
+      * IF statement at line 215
+    - Function Calls: print, self._check_time_limit, parent_pairs.append, range, len, random.choices, sum
+    - Returns: value
+  - Method: represent_bin_in_int
+    - Parameters: self, bin_vec_list
+    - Control Flow:
+      * FOR statement at line 226
+    - Function Calls: str, bit_str.append, int, .join
+    - Returns: value
+  - Method: stage_v_crossover
+    - Parameters: self, parent_pairs
+    - Purpose: Stage V: Reproduction and Cross-Over
+    - Control Flow:
+      * IF statement at line 245
+      * FOR statement at line 250
+      * IF statement at line 251
+    - Function Calls: self.represent_the_vec_in_binary, self._check_time_limit, self.represent_bin_in_int, random.randint, children.append
+    - Returns: value
+  - Method: stage_vi_mutation
+    - Parameters: self, children
+    - Purpose: Stage VI: Mutation
+    - Control Flow:
+      * IF statement at line 279
+      * FOR statement at line 287
+      * IF statement at line 288
+      * IF statement at line 294
+    - Function Calls: self.represent_the_vec_in_binary, self._check_time_limit, self.represent_bin_in_int, random.randint, mutated_children.append, len, mutated_children.extend
+    - Returns: value
+  - Method: stage_vii_test_population_generation
+    - Parameters: self, init_pop, child_pop
+    - Purpose: Stage VII: Test Population Generation
+    - Control Flow:
+      * IF statement at line 331
+      * IF statement at line 339
+    - Function Calls: zip, self._check_time_limit, self.compute_fitness_for_population, set, list, sorted
+    - Returns: value
+  - Method: stage_viii_minimal_test_set
+    - Parameters: self, fin_pop, L
+    - Purpose: Stage VIII: Minimal Test Set Generation
+    - Control Flow:
+      * IF statement at line 360
+      * FOR statement at line 366
+      * IF statement at line 368
+      * FOR statement at line 372
+      * IF statement at line 373
+      * IF statement at line 378
+    - Function Calls: print, min, self._check_time_limit, max, range, self.find_best_combination, len, list, itertools.combinations, self.compute_combined_coverage
+    - Returns: value
+  - Method: compute_combined_coverage
+    - Parameters: self, test_set
+    - Purpose: Compute combined fault coverage for a set of test vectors
+    - Control Flow:
+      * IF statement at line 396
+      * FOR statement at line 402
+      * IF statement at line 414
+      * IF statement at line 403
+      * IF statement at line 408
+      * FOR statement at line 411
+    - Function Calls: self._check_time_limit, self.stage_iii_fitness_function_computation, range, len, all_detected.count
+    - Returns: value
+  - Method: find_best_combination
+    - Parameters: self, vectors
+    - Purpose: Find the best combination of vectors for maximum coverage
+    - Control Flow:
+      * IF statement at line 425
+      * FOR statement at line 433
+      * IF statement at line 435
+      * FOR statement at line 438
+      * IF statement at line 440
+      * IF statement at line 443
+    - Function Calls: min, self._check_time_limit, range, len, list, itertools.combinations, self.compute_combined_coverage
+    - Returns: value
+  - Method: run
+    - Parameters: self, verbose
+    - Purpose: Run the complete GA algorithm
+    - Control Flow:
+      * IF statement at line 461
+      * IF statement at line 470
+      * IF statement at line 482
+      * FOR statement at line 493
+      * IF statement at line 591
+      * IF statement at line 494
+      * IF statement at line 501
+      * IF statement at line 510
+      * IF statement at line 521
+      * IF statement at line 528
+      * IF statement at line 540
+      * IF statement at line 544
+      * IF statement at line 556
+      * IF statement at line 561
+      * IF statement at line 567
+      * IF statement at line 578
+      * IF statement at line 568
+    - Function Calls: self.stage_i_input_Parameter_extratcion, range, self.stage_viii_minimal_test_set, self.stage_vi_mutation, self.stage_vii_test_population_generation, self.save_results, self.stage_iv_roulette_wheel_selection, self._start_timer, print, self._check_time_limit, self.compute_fitness_for_population, max, sum, self.stage_v_crossover, finPop.extend, self.stage_ii_TV_selection, populn.extend, len, self.compute_combined_coverage
+    - Returns: value
+  - Method: save_results
+    - Parameters: self
+    - Function Calls: len, self.detectedFaults.count, self._update_execution_time
+    - Returns: value

@@ -1,0 +1,129 @@
+CALL HIERARCHY
+============================================================
+
+Function Call Graph:
+
+Calculator._log_operation()
+  ├─ Calls:
+  │  └─ self.history.append()
+
+Calculator.add_to_memory()
+  ├─ Calls:
+  │  └─ add()
+  │  └─ self._log_operation()
+
+Calculator.clear_memory()
+  ├─ Calls:
+  │  └─ self._log_operation()
+
+Calculator.subtract_from_memory()
+  ├─ Calls:
+  │  └─ self._log_operation()
+  │  └─ subtract()
+
+ScientificCalculator.cos()
+  ├─ Calls:
+  │  └─ math.cos()
+
+ScientificCalculator.power()
+  ├─ Calls:
+  │  └─ math.pow()
+  │  └─ self._log_operation()
+
+ScientificCalculator.sin()
+  ├─ Calls:
+  │  └─ math.sin()
+
+ScientificCalculator.square_root()
+  ├─ Calls:
+  │  └─ ValueError()
+  │  └─ math.sqrt()
+  │  └─ self._log_operation()
+
+add()
+  ├─ Calls:
+  │  └─ print()
+  └─ Called by:
+     └─ Calculator.add_to_memory()
+     └─ calculate_average()
+     └─ main()
+
+calculate_average()
+  ├─ Calls:
+  │  └─ add()
+  │  └─ divide()
+  │  └─ len()
+  └─ Called by:
+     └─ main()
+
+divide()
+  ├─ Calls:
+  │  └─ ValueError()
+  └─ Called by:
+     └─ calculate_average()
+
+factorial()
+  ├─ Calls:
+  │  └─ ValueError()
+  │  └─ multiply()
+  │  └─ range()
+
+main()
+  ├─ Calls:
+  │  └─ Calculator()
+  │  └─ ScientificCalculator()
+  │  └─ add()
+  │  └─ calc.add_to_memory()
+  │  └─ calc.get_memory()
+  │  └─ calc.subtract_from_memory()
+  │  └─ calculate_average()
+  │  └─ print()
+  │  └─ sci_calc.power()
+  │  └─ sci_calc.square_root()
+
+============================================================
+EXECUTION FLOW ANALYSIS:
+
+Entry Points (not called by other functions):
+  - Calculator._log_operation()
+    └─> self.history.append()
+  - Calculator.add_to_memory()
+    └─> add()
+        └─> print()
+    └─> self._log_operation()
+  - Calculator.clear_memory()
+    └─> self._log_operation()
+  - Calculator.subtract_from_memory()
+    └─> self._log_operation()
+    └─> subtract()
+  - ScientificCalculator.cos()
+    └─> math.cos()
+  - ScientificCalculator.power()
+    └─> math.pow()
+    └─> self._log_operation()
+  - ScientificCalculator.sin()
+    └─> math.sin()
+  - ScientificCalculator.square_root()
+    └─> ValueError()
+    └─> math.sqrt()
+    └─> self._log_operation()
+  - factorial()
+    └─> ValueError()
+    └─> multiply()
+    └─> range()
+  - main()
+    └─> Calculator()
+    └─> ScientificCalculator()
+    └─> add()
+        └─> print()
+    └─> calc.add_to_memory()
+    └─> calc.get_memory()
+    └─> calc.subtract_from_memory()
+    └─> calculate_average()
+        └─> add()
+        └─> divide()
+            └─> ValueError()
+        └─> len()
+    └─> print()
+    └─> sci_calc.power()
+    └─> sci_calc.square_root()

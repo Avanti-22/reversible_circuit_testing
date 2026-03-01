@@ -1,0 +1,141 @@
+PROGRAM example_calculator
+
+// Import required modules
+IMPORT math
+IMPORT List FROM typing
+
+// Global variables
+DECLARE DEBUG_MODE
+DECLARE PI
+
+FUNCTION add(a, b)
+    // Add two numbers
+    IF DEBUG_MODE THEN
+        // conditional logic
+    END IF
+    // Calls: print
+    RETURN result
+END FUNCTION
+
+FUNCTION subtract(a, b)
+    // Subtract b from a
+    RETURN result
+END FUNCTION
+
+FUNCTION multiply(a, b)
+    // Multiply two numbers
+    RETURN result
+END FUNCTION
+
+FUNCTION divide(a, b)
+    // Divide a by b
+    IF b == 0 THEN
+        // conditional logic
+    END IF
+    // Calls: ValueError
+    RETURN result
+END FUNCTION
+
+FUNCTION calculate_average(numbers)
+    // Calculate average of a list of numbers
+    IF not numbers THEN
+        // conditional logic
+    END IF
+    FOR num IN numbers DO
+        // loop body
+    END FOR
+    // Calls: divide, add, len
+    RETURN result
+END FUNCTION
+
+FUNCTION factorial(n)
+    // Calculate factorial of n
+    IF n < 0 THEN
+        // conditional logic
+    END IF
+    IF n == 0 or n == 1 THEN
+        // conditional logic
+    END IF
+    FOR i IN range(2, n + 1) DO
+        // loop body
+    END FOR
+    // Calls: multiply, range, ValueError
+    RETURN result
+END FUNCTION
+
+FUNCTION main()
+    // Main function to demonstrate calculator
+    // Calls: calculate_average, calc.get_memory, Calculator, sci_calc.power, sci_calc.square_root, print, add, calc.add_to_memory, calc.subtract_from_memory, ScientificCalculator
+END FUNCTION
+
+CLASS Calculator
+
+    METHOD __init__(self)
+        // Initialize calculator with zero memory
+    END METHOD
+
+    METHOD add_to_memory(self, value)
+        // Add value to memory
+        // Calls: add, self._log_operation
+    END METHOD
+
+    METHOD subtract_from_memory(self, value)
+        // Subtract value from memory
+        // Calls: self._log_operation, subtract
+    END METHOD
+
+    METHOD clear_memory(self)
+        // Clear memory
+        // Calls: self._log_operation
+    END METHOD
+
+    METHOD get_memory(self)
+        // Get current memory value
+        RETURN result
+    END METHOD
+
+    METHOD _log_operation(self, operation, value)
+        // Log operation to history
+        // Calls: self.history.append
+    END METHOD
+
+    METHOD get_history(self)
+        // Get operation history
+        RETURN result
+    END METHOD
+
+END CLASS
+
+CLASS ScientificCalculator
+    INHERITS FROM Calculator
+
+    METHOD power(self, base, exponent)
+        // Calculate base raised to exponent
+        // Calls: self._log_operation, math.pow
+        RETURN result
+    END METHOD
+
+    METHOD square_root(self, value)
+        // Calculate square root
+        IF value < 0 THEN
+            // conditional logic
+        END IF
+        // Calls: self._log_operation, ValueError, math.sqrt
+        RETURN result
+    END METHOD
+
+    METHOD sin(self, angle)
+        // Calculate sine of angle in radians
+        // Calls: math.sin
+        RETURN result
+    END METHOD
+
+    METHOD cos(self, angle)
+        // Calculate cosine of angle in radians
+        // Calls: math.cos
+        RETURN result
+    END METHOD
+
+END CLASS
+
+END PROGRAM

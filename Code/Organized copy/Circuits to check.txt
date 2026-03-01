@@ -1,0 +1,207 @@
+13 17 tc mbf giving index out of range in stage 3 after stage 9
+
+
+4gt12-v0_86
+Stage 1
+Stage 2
+Stage 3
+Population fitness - Max: 50.00%, Avg: 38.57%
+Stage 4
+[7, 1, 22, 31, 21] [0.2222222222222222, 0.07407407407407407, 0.2222222222222222, 0.25925925925925924, 0.2222222222222222]
+Stage 5
+Stage 6
+Stage 7
+Stage 8
+Stage 9
+Stage 3
+Population fitness - Max: 57.14%, Avg: 32.14%
+Stage 4
+[7, 1, 22, 31, 21, 6, 0, 12, 5, 4] [0.13333333333333333, 0.044444444444444446, 0.13333333333333333, 0.15555555555555559, 0.13333333333333333, 0.08888888888888889, 0.0, 0.17777777777777778, 0.08888888888888889, 0.044444444444444446]
+Stage 5
+Stage 6
+Stage 7
+Stage 8
+Stage 9
+Stage 3
+Population fitness - Max: 57.14%, Avg: 41.43%
+Stage 4
+[10, 13, 19, 0, 9] [0.27586206896551724, 0.2413793103448276, 0.20689655172413793, 0.0, 0.27586206896551724]
+Stage 5
+Stage 6
+Stage 7
+Stage 8
+Stage 9
+Stage 3
+Population fitness - Max: 71.43%, Avg: 44.29%
+Stage 4
+[19, 8, 10, 15, 0] [0.1935483870967742, 0.32258064516129037, 0.25806451612903225, 0.22580645161290325, 0.0]
+Stage 5
+Stage 6
+Stage 7
+Stage 8
+Stage 9
+Stage 3
+Population fitness - Max: 57.14%, Avg: 41.43%
+Stage 4
+[14, 10, 11, 6, 16] [0.24137931034482762, 0.27586206896551724, 0.27586206896551724, 0.13793103448275862, 0.06896551724137931]
+Stage 5
+Stage 6
+Stage 7
+Stage 8
+Stage 9
+Stage 3
+Population fitness - Max: 57.14%, Avg: 25.71%
+Stage 4
+[9, 2, 6, 0, 3] [0.4444444444444445, 0.11111111111111112, 0.22222222222222224, 0.0, 0.22222222222222224]
+Stage 5
+Stage 6
+Stage 7
+Stage 8
+Stage 9
+Stage 3
+Population fitness - Max: 71.43%, Avg: 40.00%
+Stage 4
+[18, 8, 3, 11, 4] [0.14285714285714288, 0.3571428571428572, 0.14285714285714288, 0.28571428571428575, 0.07142857142857144]
+Stage 5
+Stage 6
+Stage 7
+Stage 8
+Stage 9
+Stage 3
+Population fitness - Max: 28.57%, Avg: 17.14%
+Stage 4
+[6, 16, 2, 0, 17] [0.3333333333333333, 0.16666666666666666, 0.16666666666666666, 0.0, 0.3333333333333333]
+Stage 5
+Stage 6
+Stage 7
+Stage 8
+Stage 9
+Stage 3
+Population fitness - Max: 57.14%, Avg: 32.86%
+Stage 4
+[14, 12, 2, 4, 17] [0.30434782608695654, 0.34782608695652173, 0.08695652173913043, 0.08695652173913043, 0.17391304347826086]
+Stage 5
+Stage 6
+Stage 7
+Stage 8
+Stage 9
+Stage 3
+Population fitness - Max: 71.43%, Avg: 52.86%
+Stage 4
+[8, 14, 11, 3, 9] [0.27027027027027034, 0.18918918918918923, 0.21621621621621626, 0.10810810810810813, 0.21621621621621626]
+Stage 5
+Stage 6
+Stage 7
+Stage 8
+Stage 9
+Stage 3
+Population fitness - Max: 71.43%, Avg: 34.29%
+Stage 4
+[7, 0, 3, 8, 17] [0.25000000000000006, 0.0, 0.16666666666666669, 0.4166666666666668, 0.16666666666666669]
+Stage 5
+Stage 6
+Stage 7
+Stage 8
+Stage 9
+Stage 3
+Population fitness - Max: 71.43%, Avg: 37.14%
+Stage 4
+[3, 11, 1, 16, 8] [0.15384615384615383, 0.30769230769230765, 0.07692307692307691, 0.07692307692307691, 0.38461538461538464]
+Stage 5
+Stage 6
+Stage 7
+Stage 8
+Stage 9
+Stage 3
+Population fitness - Max: 57.14%, Avg: 34.29%
+Stage 4
+[9, 16, 3, 1, 11] [0.3333333333333333, 0.08333333333333333, 0.16666666666666666, 0.08333333333333333, 0.3333333333333333]
+Stage 5
+Stage 6
+Stage 7
+Stage 8
+Stage 9
+Stage 3
+Population fitness - Max: 57.14%, Avg: 40.00%
+Stage 4
+[7, 12, 1, 17, 10] [0.2142857142857143, 0.28571428571428575, 0.07142857142857144, 0.14285714285714288, 0.28571428571428575]
+Stage 5
+Stage 6
+Stage 7
+Stage 8
+Stage 9
+Stage 3
+Population fitness - Max: 57.14%, Avg: 44.29%
+Stage 4
+[2, 9, 13, 7, 12] [0.06451612903225806, 0.25806451612903225, 0.22580645161290325, 0.1935483870967742, 0.25806451612903225]
+Stage 5
+Stage 6
+Stage 7
+Stage 8
+Stage 9
+Stage 3
+Population fitness - Max: 71.43%, Avg: 47.14%
+Stage 4
+[12, 14, 7, 8, 4] [0.2424242424242424, 0.21212121212121213, 0.1818181818181818, 0.30303030303030304, 0.0606060606060606]
+Stage 5
+Stage 6
+Stage 7
+Stage 8
+Stage 9
+Stage 3
+Population fitness - Max: 50.00%, Avg: 27.14%
+Stage 4
+[15, 4, 18, 2, 6] [0.3684210526315789, 0.10526315789473682, 0.21052631578947364, 0.10526315789473682, 0.21052631578947364]
+Stage 5
+Stage 6
+Stage 7
+Stage 8
+Stage 9
+Stage 3
+Population fitness - Max: 50.00%, Avg: 34.29%
+Stage 4
+[15, 4, 14, 19, 2] [0.2916666666666667, 0.08333333333333333, 0.2916666666666667, 0.25, 0.08333333333333333]
+Stage 5
+Stage 6
+Stage 7
+Stage 8
+Stage 9
+Stage 3
+Population fitness - Max: 50.00%, Avg: 27.14%
+Stage 4
+[4, 1, 19, 15, 16] [0.10526315789473685, 0.10526315789473685, 0.31578947368421056, 0.368421052631579, 0.10526315789473685]
+Stage 5
+Stage 6
+Stage 7
+Stage 8
+Stage 9
+Stage 3
+Population fitness - Max: 50.00%, Avg: 27.14%
+Stage 4
+[13, 6, 4, 17, 1] [0.3684210526315789, 0.21052631578947364, 0.10526315789473682, 0.21052631578947364, 0.10526315789473682]
+Stage 5
+Stage 6
+Stage 7
+Stage 8
+Stage 9
+=== Algorithm Terminated: Max Generations Reached ===
+[{
+    'Circuit Name': '4gt12-v0_86', 
+    'No of Lines': 5, 
+    'No of Gates': 14, 
+    'Library': 'MCT', 
+    'Fault Model': 'SMGF', 
+    'Population Size': 20, 
+    'Max Generations': 20, 
+    'Actual Generations': 1, 
+    'Threshold': 100.0, 
+    'Total Faults': 14, 
+    'Detected Faults': 14, 
+    'Fault Coverage': 78.57142857142857, 
+    'Minimal Vector Set': [7, 1, 22, 31, 21, 6, 0, 12, 5, 4], 
+    'Test Set Size': 10, 'Execution Time': 0.7190000000118744, 
+    'Time Limit Exceeded': False, 
+    'Minimization Skipped': False, 
+    'Detected Fault Locations': [1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1]
+}]
+done for circuit this

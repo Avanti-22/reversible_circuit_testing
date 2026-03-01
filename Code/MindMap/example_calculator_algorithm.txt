@@ -1,0 +1,120 @@
+ALGORITHM: example_calculator
+============================================================
+
+OVERVIEW:
+  - Total Functions: 7
+  - Total Classes: 2
+  - Total Imports: 2
+
+ALGORITHM STEPS:
+
+Step 1: Import Dependencies
+  - Import module: math
+  - Import List from typing
+
+Step 2: Initialize Global Variables
+  - Declare and initialize: DEBUG_MODE
+  - Declare and initialize: PI
+
+Step 3: Define Function 'add'
+  - Parameters: a, b
+  - Purpose: Add two numbers
+  - Control Flow:
+    * IF statement at line 18
+  - Function Calls: print
+  - Returns: value
+
+Step 4: Define Function 'subtract'
+  - Parameters: a, b
+  - Purpose: Subtract b from a
+  - Returns: value
+
+Step 5: Define Function 'multiply'
+  - Parameters: a, b
+  - Purpose: Multiply two numbers
+  - Returns: value
+
+Step 6: Define Function 'divide'
+  - Parameters: a, b
+  - Purpose: Divide a by b
+  - Control Flow:
+    * IF statement at line 35
+  - Function Calls: ValueError
+  - Returns: value
+
+Step 7: Define Function 'calculate_average'
+  - Parameters: numbers
+  - Purpose: Calculate average of a list of numbers
+  - Control Flow:
+    * IF statement at line 42
+    * FOR statement at line 46
+  - Function Calls: divide, add, len
+  - Returns: value
+
+Step 8: Define Function 'factorial'
+  - Parameters: n
+  - Purpose: Calculate factorial of n
+  - Control Flow:
+    * IF statement at line 54
+    * IF statement at line 57
+    * FOR statement at line 61
+  - Function Calls: multiply, range, ValueError
+  - Returns: value
+
+Step 9: Define Function 'main'
+  - Purpose: Main function to demonstrate calculator
+  - Function Calls: calculate_average, calc.get_memory, Calculator, sci_calc.power, sci_calc.square_root, print, add, calc.add_to_memory, calc.subtract_from_memory, ScientificCalculator
+
+Step 10: Define Class 'Calculator'
+  - Method: __init__
+    - Parameters: self
+    - Purpose: Initialize calculator with zero memory
+  - Method: add_to_memory
+    - Parameters: self, value
+    - Purpose: Add value to memory
+    - Function Calls: add, self._log_operation
+  - Method: subtract_from_memory
+    - Parameters: self, value
+    - Purpose: Subtract value from memory
+    - Function Calls: self._log_operation, subtract
+  - Method: clear_memory
+    - Parameters: self
+    - Purpose: Clear memory
+    - Function Calls: self._log_operation
+  - Method: get_memory
+    - Parameters: self
+    - Purpose: Get current memory value
+    - Returns: value
+  - Method: _log_operation
+    - Parameters: self, operation, value
+    - Purpose: Log operation to history
+    - Function Calls: self.history.append
+  - Method: get_history
+    - Parameters: self
+    - Purpose: Get operation history
+    - Returns: value
+
+Step 11: Define Class 'ScientificCalculator'
+  - Inherits from: Calculator
+  - Method: power
+    - Parameters: self, base, exponent
+    - Purpose: Calculate base raised to exponent
+    - Function Calls: self._log_operation, math.pow
+    - Returns: value
+  - Method: square_root
+    - Parameters: self, value
+    - Purpose: Calculate square root
+    - Control Flow:
+      * IF statement at line 118
+    - Function Calls: self._log_operation, ValueError, math.sqrt
+    - Returns: value
+  - Method: sin
+    - Parameters: self, angle
+    - Purpose: Calculate sine of angle in radians
+    - Function Calls: math.sin
+    - Returns: value
+  - Method: cos
+    - Parameters: self, angle
+    - Purpose: Calculate cosine of angle in radians
+    - Function Calls: math.cos
+    - Returns: value

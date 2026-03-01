@@ -1,0 +1,1605 @@
+[
+  {
+    "Library Type": "MCT",
+    "Circuit Name": "3_17_13",
+    "No of Lines": 3,
+    "No of Gates": 6,
+    "Variables": [
+      "a",
+      "b",
+      "c"
+    ],
+    "Inputs": [
+      "a",
+      "b",
+      "c"
+    ],
+    "Outputs": [
+      "a",
+      "b",
+      "c"
+    ],
+    "Constants": "---",
+    "Garbage": "---",
+    "Gates": [
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "c"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "a",
+          "c"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "c",
+          "b"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "b",
+          "c",
+          "a"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "a",
+          "b",
+          "c"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "b",
+          "c"
+        ]
+      }
+    ],
+    "Metadata": {
+      "Version": "1.0",
+      "format": "real"
+    }
+  },
+  {
+    "Library Type": "MCT",
+    "Circuit Name": "4_49_17",
+    "No of Lines": 4,
+    "No of Gates": 12,
+    "Variables": [
+      "a",
+      "b",
+      "c",
+      "d"
+    ],
+    "Inputs": [
+      "a",
+      "b",
+      "c",
+      "d"
+    ],
+    "Outputs": [
+      "a",
+      "b",
+      "c",
+      "d"
+    ],
+    "Constants": "----",
+    "Garbage": "----",
+    "Gates": [
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "c",
+          "a"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "a"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "a",
+          "d"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "a",
+          "b",
+          "d"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "d",
+          "a"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "c",
+          "d",
+          "b"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "a",
+          "d",
+          "c"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "b",
+          "c",
+          "a"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "a",
+          "b",
+          "d"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "a"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "d",
+          "b"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "d",
+          "c"
+        ]
+      }
+    ],
+    "Metadata": {
+      "Version": "1.0",
+      "format": "real"
+    }
+  },
+  {
+    "Library Type": "MCT",
+    "Circuit Name": "4gt12-v0_86",
+    "No of Lines": 5,
+    "No of Gates": 14,
+    "Variables": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e"
+    ],
+    "Inputs": [
+      "0",
+      "b",
+      "c",
+      "d",
+      "e"
+    ],
+    "Outputs": [
+      "g",
+      "g",
+      "g",
+      "g",
+      "f"
+    ],
+    "Constants": "0----",
+    "Garbage": "1111-",
+    "Gates": [
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "c",
+          "b"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "b",
+          "c"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "d",
+          "c"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "c",
+          "d"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "e",
+          "d"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "d",
+          "e"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "b",
+          "c",
+          "d",
+          "e",
+          "a"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "c",
+          "d",
+          "e",
+          "a"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "b",
+          "e",
+          "a"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "e",
+          "d"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "e",
+          "c"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "e",
+          "b"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "a",
+          "e"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "e",
+          "a"
+        ]
+      }
+    ],
+    "Metadata": {
+      "Version": "1.0",
+      "format": "real"
+    }
+  },
+  {
+    "Library Type": "MCT",
+    "Circuit Name": "alu-v0_26",
+    "No of Lines": 5,
+    "No of Gates": 6,
+    "Variables": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e"
+    ],
+    "Inputs": [
+      "c0",
+      "c1",
+      "c2",
+      "a",
+      "b"
+    ],
+    "Outputs": [
+      "g",
+      "g",
+      "f",
+      "g",
+      "g"
+    ],
+    "Constants": "-----",
+    "Garbage": "11-11",
+    "Gates": [
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "c",
+          "b"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "c",
+          "a"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "b",
+          "e",
+          "d",
+          "c"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "e",
+          "d"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "a",
+          "d",
+          "c"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "c"
+        ]
+      }
+    ],
+    "Metadata": {
+      "Version": "1.0",
+      "format": "real"
+    }
+  },
+  {
+    "Library Type": "MCT",
+    "Circuit Name": "cnt3-5_180",
+    "No of Lines": 16,
+    "No of Gates": 20,
+    "Variables": [
+      "x15",
+      "x14",
+      "x13",
+      "x12",
+      "x11",
+      "x10",
+      "x9",
+      "x8",
+      "x7",
+      "x6",
+      "x5",
+      "x4",
+      "x3",
+      "x2",
+      "x1",
+      "x0"
+    ],
+    "Inputs": [
+      "0",
+      "y4",
+      "x4",
+      "0",
+      "y3",
+      "x3",
+      "0",
+      "y2",
+      "x2",
+      "0",
+      "y1",
+      "x1",
+      "0",
+      "cnt",
+      "y0",
+      "x0"
+    ],
+    "Outputs": [
+      "cout",
+      "y4",
+      "x4",
+      "g",
+      "y3",
+      "x3",
+      "g",
+      "y2",
+      "x2",
+      "g",
+      "y1",
+      "x1",
+      "g",
+      "g",
+      "y0",
+      "x0"
+    ],
+    "Constants": "0--0--0--0--0---",
+    "Garbage": "---1--1--1--11--",
+    "Gates": [
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "x2",
+          "x1",
+          "x0"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "x0",
+          "x1",
+          "x2",
+          "x3"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "x0",
+          "x2",
+          "x1"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "x2",
+          "x0"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "x3",
+          "x5",
+          "x4"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "x4",
+          "x5",
+          "x3",
+          "x6"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "x4",
+          "x3",
+          "x5"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "x3",
+          "x4"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "x6",
+          "x8",
+          "x7"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "x7",
+          "x8",
+          "x6",
+          "x9"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "x7",
+          "x6",
+          "x8"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "x6",
+          "x7"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "x9",
+          "x11",
+          "x10"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "x10",
+          "x11",
+          "x9",
+          "x12"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "x10",
+          "x9",
+          "x11"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "x9",
+          "x10"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "x12",
+          "x14",
+          "x13"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "x13",
+          "x14",
+          "x12",
+          "x15"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "x13",
+          "x12",
+          "x14"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "x12",
+          "x13"
+        ]
+      }
+    ],
+    "Metadata": {
+      "Version": "1.0",
+      "format": "real"
+    }
+  },
+  {
+    "Library Type": "MCT",
+    "Circuit Name": "cycle10_2_110",
+    "No of Lines": 12,
+    "No of Gates": 19,
+    "Variables": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f",
+      "g",
+      "h",
+      "i",
+      "j",
+      "k",
+      "l"
+    ],
+    "Inputs": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f",
+      "g",
+      "h",
+      "i",
+      "j",
+      "k",
+      "l"
+    ],
+    "Outputs": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f",
+      "g",
+      "h",
+      "i",
+      "j",
+      "k",
+      "l"
+    ],
+    "Constants": "------------",
+    "Garbage": "------------",
+    "Gates": [
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "b",
+          "c",
+          "d",
+          "e",
+          "f",
+          "g",
+          "h",
+          "i",
+          "l",
+          "j"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "b",
+          "c",
+          "d",
+          "e",
+          "f",
+          "g",
+          "h",
+          "l",
+          "i"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "b",
+          "c",
+          "d",
+          "e",
+          "f",
+          "g",
+          "l",
+          "h"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "b",
+          "c",
+          "d",
+          "e",
+          "f",
+          "l",
+          "g"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "b",
+          "c",
+          "d",
+          "e",
+          "l",
+          "f"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "b",
+          "c",
+          "d",
+          "l",
+          "e"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "b",
+          "c",
+          "l",
+          "d"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "b",
+          "l",
+          "c"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "l",
+          "b"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "a",
+          "b",
+          "c",
+          "d",
+          "e",
+          "f",
+          "g",
+          "h",
+          "i",
+          "k",
+          "j"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "a",
+          "b",
+          "c",
+          "d",
+          "e",
+          "f",
+          "g",
+          "h",
+          "k",
+          "i"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "a",
+          "b",
+          "c",
+          "d",
+          "e",
+          "f",
+          "g",
+          "k",
+          "h"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "a",
+          "b",
+          "c",
+          "d",
+          "e",
+          "f",
+          "k",
+          "g"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "a",
+          "b",
+          "c",
+          "d",
+          "e",
+          "k",
+          "f"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "a",
+          "b",
+          "c",
+          "d",
+          "k",
+          "e"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "a",
+          "b",
+          "c",
+          "k",
+          "d"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "a",
+          "b",
+          "k",
+          "c"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "a",
+          "k",
+          "b"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "k",
+          "a"
+        ]
+      }
+    ],
+    "Metadata": {
+      "Version": "1.0",
+      "format": "real"
+    }
+  },
+  {
+    "Library Type": "NCT",
+    "Circuit Name": "graycode6_47",
+    "No of Lines": 6,
+    "No of Gates": 5,
+    "Variables": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f"
+    ],
+    "Inputs": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f"
+    ],
+    "Outputs": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f"
+    ],
+    "Constants": "------",
+    "Garbage": "------",
+    "Gates": [
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "b",
+          "a"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "c",
+          "b"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "d",
+          "c"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "e",
+          "d"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "f",
+          "e"
+        ]
+      }
+    ],
+    "Metadata": {
+      "Version": "1.0",
+      "format": "real"
+    }
+  },
+  {
+    "Library Type": "MCT",
+    "Circuit Name": "ham3_102",
+    "No of Lines": 3,
+    "No of Gates": 5,
+    "Variables": [
+      "a",
+      "b",
+      "c"
+    ],
+    "Inputs": [
+      "a",
+      "b",
+      "c"
+    ],
+    "Outputs": [
+      "a",
+      "b",
+      "c"
+    ],
+    "Constants": "---",
+    "Garbage": "---",
+    "Gates": [
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "b",
+          "c",
+          "a"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "c",
+          "b"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "b",
+          "c"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "a",
+          "c"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "c",
+          "b"
+        ]
+      }
+    ],
+    "Metadata": {
+      "Version": "1.0",
+      "format": "real"
+    }
+  },
+  {
+    "Library Type": "MCF",
+    "Circuit Name": "hwb4_51",
+    "No of Lines": 4,
+    "No of Gates": 11,
+    "Variables": [
+      "a",
+      "b",
+      "c",
+      "d"
+    ],
+    "Inputs": [
+      "a",
+      "b",
+      "c",
+      "d"
+    ],
+    "Outputs": [
+      "a",
+      "b",
+      "c",
+      "d"
+    ],
+    "Constants": "----",
+    "Garbage": "----",
+    "Gates": [
+      {
+        "gate": "FREDKIN",
+        "vars": [
+          "c",
+          "d",
+          "a",
+          "b"
+        ]
+      },
+      {
+        "gate": "FREDKIN",
+        "vars": [
+          "a",
+          "b"
+        ]
+      },
+      {
+        "gate": "FREDKIN",
+        "vars": [
+          "d",
+          "a",
+          "c"
+        ]
+      },
+      {
+        "gate": "FREDKIN",
+        "vars": [
+          "a",
+          "c"
+        ]
+      },
+      {
+        "gate": "FREDKIN",
+        "vars": [
+          "d",
+          "a",
+          "b"
+        ]
+      },
+      {
+        "gate": "FREDKIN",
+        "vars": [
+          "a",
+          "c",
+          "b",
+          "d"
+        ]
+      },
+      {
+        "gate": "FREDKIN",
+        "vars": [
+          "a",
+          "c",
+          "d"
+        ]
+      },
+      {
+        "gate": "FREDKIN",
+        "vars": [
+          "b",
+          "a",
+          "d"
+        ]
+      },
+      {
+        "gate": "FREDKIN",
+        "vars": [
+          "a",
+          "d"
+        ]
+      },
+      {
+        "gate": "FREDKIN",
+        "vars": [
+          "a",
+          "b",
+          "c"
+        ]
+      },
+      {
+        "gate": "FREDKIN",
+        "vars": [
+          "c",
+          "b",
+          "d"
+        ]
+      }
+    ],
+    "Metadata": {
+      "Version": "1.0",
+      "format": "real"
+    }
+  },
+  {
+    "Library Type": "MCT",
+    "Circuit Name": "mod5d1_63",
+    "No of Lines": 5,
+    "No of Gates": 7,
+    "Variables": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e"
+    ],
+    "Inputs": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e"
+    ],
+    "Outputs": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e"
+    ],
+    "Constants": "-----",
+    "Garbage": "-----",
+    "Gates": [
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "d",
+          "b"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "c",
+          "a"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "b",
+          "e"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "a",
+          "e"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "b",
+          "a",
+          "e"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "d",
+          "b"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "c",
+          "a"
+        ]
+      }
+    ],
+    "Metadata": {
+      "Version": "1.0",
+      "format": "real"
+    }
+  },
+  {
+    "Library Type": "MCT",
+    "Circuit Name": "one-two-three-v0_97",
+    "No of Lines": 5,
+    "No of Gates": 11,
+    "Variables": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e"
+    ],
+    "Inputs": [
+      "0",
+      "0",
+      "c",
+      "d",
+      "e"
+    ],
+    "Outputs": [
+      "g",
+      "g",
+      "c",
+      "d",
+      "e"
+    ],
+    "Constants": "00---",
+    "Garbage": "11---",
+    "Gates": [
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "d",
+          "c"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "e",
+          "b"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "b",
+          "e",
+          "a"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "a",
+          "b",
+          "e",
+          "d"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "b",
+          "c",
+          "d"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "a",
+          "d",
+          "e",
+          "b"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "b",
+          "c",
+          "d"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "a",
+          "d",
+          "e",
+          "c"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "c",
+          "d",
+          "b"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "a",
+          "d",
+          "e"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "b",
+          "c",
+          "d"
+        ]
+      }
+    ],
+    "Metadata": {
+      "Version": "1.0",
+      "format": "real"
+    }
+  },
+  {
+    "Library Type": "MCT",
+    "Circuit Name": "rd32-v0_66",
+    "No of Lines": 4,
+    "No of Gates": 4,
+    "Variables": [
+      "a",
+      "b",
+      "c",
+      "d"
+    ],
+    "Inputs": [
+      "a",
+      "b",
+      "c",
+      "0"
+    ],
+    "Outputs": [
+      "g",
+      "g",
+      "c",
+      "d"
+    ],
+    "Constants": "---0",
+    "Garbage": "11--",
+    "Gates": [
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "b",
+          "a",
+          "d"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "a",
+          "b"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "c",
+          "b",
+          "d"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "b",
+          "c"
+        ]
+      }
+    ],
+    "Metadata": {
+      "Version": "1.0",
+      "format": "real"
+    }
+  },
+  {
+    "Library Type": "MCT+P",
+    "Circuit Name": "sys6-v0_144",
+    "No of Lines": 10,
+    "No of Gates": 15,
+    "Variables": [
+      "x1",
+      "x2",
+      "x3",
+      "x4",
+      "x5",
+      "x6",
+      "s2",
+      "s3",
+      "s4",
+      "s5"
+    ],
+    "Inputs": [
+      "x1",
+      "x2",
+      "x3",
+      "x4",
+      "x5",
+      "x6",
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "Outputs": [
+      "g",
+      "g",
+      "g",
+      "g",
+      "g",
+      "g",
+      "g",
+      "g",
+      "g",
+      "s"
+    ],
+    "Constants": "------0000",
+    "Garbage": "111111111-",
+    "Gates": [
+      {
+        "gate": "PERES",
+        "vars": [
+          "x1",
+          "x2",
+          "s2"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "x3",
+          "s2",
+          "s3"
+        ]
+      },
+      {
+        "gate": "PERES",
+        "vars": [
+          "x2",
+          "x3",
+          "s2"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "x4",
+          "s3",
+          "s4"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "x4",
+          "s2",
+          "s3"
+        ]
+      },
+      {
+        "gate": "PERES",
+        "vars": [
+          "x3",
+          "x4",
+          "s2"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "x5",
+          "s4",
+          "s5"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "x5",
+          "s3",
+          "s4"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "x5",
+          "s2",
+          "s3"
+        ]
+      },
+      {
+        "gate": "PERES",
+        "vars": [
+          "x4",
+          "x5",
+          "s2"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "x6",
+          "s4",
+          "s5"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "x6",
+          "s3",
+          "s4"
+        ]
+      },
+      {
+        "gate": "PERES",
+        "vars": [
+          "x5",
+          "x6",
+          "s2"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "s2",
+          "s5"
+        ]
+      },
+      {
+        "gate": "TOFFOLI",
+        "vars": [
+          "s4",
+          "s5"
+        ]
+      }
+    ],
+    "Metadata": {
+      "Version": "1.0",
+      "format": "real"
+    }
+  }
+]

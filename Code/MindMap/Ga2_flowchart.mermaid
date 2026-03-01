@@ -1,0 +1,12 @@
+flowchart TD
+    Start([Start Program])
+    Start --> Imports[Import Modules]
+    Imports --> Class0["Class: TimeLimitExceeded"]
+    Class0 -.-> Class0I["Inherits: Exception"]
+    Class0 -.-> Class0M["Methods: 0"]
+    Class0 --> Class1["Class: GeneticAlgorithm"]
+    Class1 -.-> Class1M["Methods: 20"]
+    Class1 --> End([End Program])
+
+    style Start fill:#90EE90
+    style End fill:#FFB6C1

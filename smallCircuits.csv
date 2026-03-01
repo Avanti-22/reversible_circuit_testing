@@ -1,0 +1,14 @@
+Circuit Name,No of Lines,No of Gates,Library Type
+3_17_13,3,6,MCT
+4_49_17,4,12,MCT
+4gt12-v0_86,5,14,MCT
+alu-v0_26,5,6,MCT
+cnt3-5_180,16,20,MCT
+cycle10_2_110,12,19,MCT
+graycode6_47,6,5,NCT
+ham3_102,3,5,MCT
+hwb4_51,4,11,MCF
+mod5d1_63,5,7,MCT
+one-two-three-v0_97,5,11,MCT
+rd32-v0_66,4,4,MCT
+sys6-v0_144,10,15,MCT+P

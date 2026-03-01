@@ -1,0 +1,316 @@
+PROGRAM Ga2
+
+// Import required modules
+IMPORT List FROM typing
+IMPORT Tuple FROM typing
+IMPORT Set FROM typing
+IMPORT time
+IMPORT random
+IMPORT itertools
+IMPORT numpy
+IMPORT * FROM SimulatorsfaultCoverageFindingUtilities
+
+CLASS TimeLimitExceeded
+    INHERITS FROM Exception
+
+END CLASS
+
+CLASS GeneticAlgorithm
+
+    METHOD __init__(self, circuit, faultModel, population_size, max_generations, threshold, time_limit_seconds, skip_minimization)
+        // Initialize the GA
+        IF skip_minimization is None THEN
+            // conditional logic
+        END IF
+    END METHOD
+
+    METHOD _start_timer(self)
+        // Calls: time.monotonic
+    END METHOD
+
+    METHOD _update_execution_time(self)
+        IF self._start_time is not None THEN
+            // conditional logic
+        END IF
+        // Calls: time.monotonic
+    END METHOD
+
+    METHOD _check_time_limit(self)
+        IF self.execution_time >= self.time_limit_seconds THEN
+            // conditional logic
+        END IF
+        IF not self._time_limit_exceeded THEN
+            // conditional logic
+        END IF
+        // Calls: self._update_execution_time
+        RETURN result
+    END METHOD
+
+    METHOD stage_i_input_Parameter_extratcion(self)
+    END METHOD
+
+    METHOD stage_ii_TV_selection(self, test_Size)
+        // Stage II: Test Vector Selection (Random Search)
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        IF test_Size is None THEN
+            // conditional logic
+        END IF
+        // Calls: min, self._check_time_limit, range, len, list, random.sample
+        RETURN result
+    END METHOD
+
+    METHOD represent_the_vec_in_binary(self, testVector)
+        FOR bit IN vec DO
+            // loop body
+        END FOR
+        // Calls: format, int, binaryVector.append
+        RETURN result
+    END METHOD
+
+    METHOD obtain_detected_fault_matrix(self, faultFreeOutput, faultyOutputs)
+        FOR i IN range(len(faultyOutputs)) DO
+            // loop body
+        END FOR
+        IF faultyOutputs[i] != faultFreeOutput THEN
+            // conditional logic
+        END IF
+        // Calls: detectedFaultsForCurrentTV.append, len, range
+        RETURN result
+    END METHOD
+
+    METHOD stage_iii_fitness_function_computation(self, vector)
+        // Stage III: Fitness Function Computation
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        // Calls: self.obtain_detected_fault_matrix, self.represent_the_vec_in_binary, detectedFaultList.count, self._check_time_limit, get_all_faulty_outputs, len, simulate_circuit
+        RETURN result
+    END METHOD
+
+    METHOD compute_fitness_for_population(self, initPop)
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        FOR i IN range(len(initPop)) DO
+            // loop body
+        END FOR
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        IF fitnessFunction[i] >= self.threshold THEN
+            // conditional logic
+        END IF
+        // Calls: print, self._check_time_limit, self.stage_iii_fitness_function_computation, range, fitnessFunction.append, len
+        RETURN result
+    END METHOD
+
+    METHOD stage_iv_roulette_wheel_selection(self, fitnessFunction, population)
+        // Stage IV: Roulette Wheel Selection
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        IF total_fitness == 0 THEN
+            // conditional logic
+        END IF
+        FOR _ IN range(self.n) DO
+            // loop body
+        END FOR
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        // Calls: print, self._check_time_limit, parent_pairs.append, range, len, random.choices, sum
+        RETURN result
+    END METHOD
+
+    METHOD represent_bin_in_int(self, bin_vec_list)
+        FOR bit IN bin_vec_list DO
+            // loop body
+        END FOR
+        // Calls: str, bit_str.append, int, .join
+        RETURN result
+    END METHOD
+
+    METHOD stage_v_crossover(self, parent_pairs)
+        // Stage V: Reproduction and Cross-Over
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        FOR (parent1, parent2) IN parent_pairs DO
+            // loop body
+        END FOR
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        // Calls: self.represent_the_vec_in_binary, self._check_time_limit, self.represent_bin_in_int, random.randint, children.append
+        RETURN result
+    END METHOD
+
+    METHOD stage_vi_mutation(self, children)
+        // Stage VI: Mutation
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        FOR child IN children DO
+            // loop body
+        END FOR
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        IF num < 10 THEN
+            // conditional logic
+        END IF
+        // Calls: self.represent_the_vec_in_binary, self._check_time_limit, self.represent_bin_in_int, random.randint, mutated_children.append, len, mutated_children.extend
+        RETURN result
+    END METHOD
+
+    METHOD stage_vii_test_population_generation(self, init_pop, child_pop)
+        // Stage VII: Test Population Generation
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        IF not fitnessFunct THEN
+            // conditional logic
+        END IF
+        // Calls: zip, self._check_time_limit, self.compute_fitness_for_population, set, list, sorted
+        RETURN result
+    END METHOD
+
+    METHOD stage_viii_minimal_test_set(self, fin_pop, L)
+        // Stage VIII: Minimal Test Set Generation
+        IF L is None THEN
+            // conditional logic
+        END IF
+        FOR combo_size IN range(L, min(len(vectors) + 1, self.population_size + 1)) DO
+            // loop body
+        END FOR
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        FOR combo IN itertools.combinations(vectors, combo_size) DO
+            // loop body
+        END FOR
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        IF coverage >= self.threshold THEN
+            // conditional logic
+        END IF
+        // Calls: print, min, self._check_time_limit, max, range, self.find_best_combination, len, list, itertools.combinations, self.compute_combined_coverage
+        RETURN result
+    END METHOD
+
+    METHOD compute_combined_coverage(self, test_set)
+        // Compute combined fault coverage for a set of test vectors
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        FOR vector IN test_set DO
+            // loop body
+        END FOR
+        IF all_detected is None THEN
+            // conditional logic
+        END IF
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        IF all_detected is None THEN
+            // conditional logic
+        END IF
+        FOR loc IN range(len(detectedFaults)) DO
+            // loop body
+        END FOR
+        // Calls: self._check_time_limit, self.stage_iii_fitness_function_computation, range, len, all_detected.count
+        RETURN result
+    END METHOD
+
+    METHOD find_best_combination(self, vectors)
+        // Find the best combination of vectors for maximum coverage
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        FOR size IN range(1, min(len(vectors) + 1, self.n + 1)) DO
+            // loop body
+        END FOR
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        FOR combo IN itertools.combinations(vectors[:min(10, len(vectors))], size) DO
+            // loop body
+        END FOR
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        IF coverage > self.best_coverage THEN
+            // conditional logic
+        END IF
+        // Calls: min, self._check_time_limit, range, len, list, itertools.combinations, self.compute_combined_coverage
+        RETURN result
+    END METHOD
+
+    METHOD run(self, verbose)
+        // Run the complete GA algorithm
+        IF verbose is not None THEN
+            // conditional logic
+        END IF
+        IF verbose THEN
+            // conditional logic
+        END IF
+        IF not populn THEN
+            // conditional logic
+        END IF
+        FOR generation IN range(self.max_generations) DO
+            // loop body
+        END FOR
+        IF self._time_limit_exceeded THEN
+            // conditional logic
+        END IF
+        IF self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        IF verbose THEN
+            // conditional logic
+        END IF
+        IF not fitnessFunct THEN
+            // conditional logic
+        END IF
+        IF not parent_pairs THEN
+            // conditional logic
+        END IF
+        IF not children THEN
+            // conditional logic
+        END IF
+        IF not fin_pop THEN
+            // conditional logic
+        END IF
+        IF self.skip_minimization or self._check_time_limit() THEN
+            // conditional logic
+        END IF
+        IF verbose THEN
+            // conditional logic
+        END IF
+        IF coverage > self.best_coverage THEN
+            // conditional logic
+        END IF
+        IF coverage >= self.threshold THEN
+            // conditional logic
+        END IF
+        IF len(test_set) < self.population_size THEN
+            // conditional logic
+        END IF
+        IF verbose THEN
+            // conditional logic
+        END IF
+        // Calls: self.stage_i_input_Parameter_extratcion, range, self.stage_viii_minimal_test_set, self.stage_vi_mutation, self.stage_vii_test_population_generation, self.save_results, self.stage_iv_roulette_wheel_selection, self._start_timer, print, self._check_time_limit, self.compute_fitness_for_population, max, sum, self.stage_v_crossover, finPop.extend, self.stage_ii_TV_selection, populn.extend, len, self.compute_combined_coverage
+        RETURN result
+    END METHOD
+
+    METHOD save_results(self)
+        // Calls: len, self.detectedFaults.count, self._update_execution_time
+        RETURN result
+    END METHOD
+
+END CLASS
+
+END PROGRAM

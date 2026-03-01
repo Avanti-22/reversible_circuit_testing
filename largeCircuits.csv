@@ -1,0 +1,10 @@
+Circuit Name,No of Lines,No of Gates,Library Type
+bw_291,87,307,MCT
+ham15_107,15,132,MCT
+ham15_298,45,153,MCT
+hwb6_301,46,159,MCT
+hwb7_302,73,281,MCT
+hwb7_60,7,166,MCF
+rd84_313,34,104,MCT
+sym9_148,10,210,MCT
+urf2_277,8,3144,MCT

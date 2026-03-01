@@ -1,0 +1,331 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+%Template version as of 6/27/2024
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+% \usepackage{algorithmic}
+\usepackage{setspace}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{longtable}
+\usepackage{supertabular}
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{array}
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+\usepackage{textcomp}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{Reversible Circuit Testing Using a Hybrid Approach: Genetic algorithm \+ dynamic Programming*\\
+% {\footnotesize \textsuperscript{*}Note: Sub-titles are not captured for https://ieeexplore.ieee.org  and
+% should not be used}
+% \thanks{Identify applicable funding agency here. If none, delete this.}
+}
+
+\author{\IEEEauthorblockN{1\textsuperscript{st} Avanti Thale}
+\IEEEauthorblockA{\textit{Department of Computer science Engineering} \\
+\textit{SVNIT}\\
+Surat, India \\
+thaleavanti2002@gmail.com}
+\and
+\IEEEauthorblockN{2\textsuperscript{nd} Anirban Bhattacharjee}
+\IEEEauthorblockA{\textit{Department of Computer science Engineering} \\
+\textit{SVNIT}\\
+Surat, India \\
+email address or ORCID}
+% \and
+% \IEEEauthorblockN{3\textsuperscript{rd} Given Name Surname}
+% \IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
+% \textit{name of organization (of Aff.)}\\
+% City, Country \\
+% email address or ORCID}
+% \and
+% \IEEEauthorblockN{4\textsuperscript{th} Given Name Surname}
+% \IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
+% \textit{name of organization (of Aff.)}\\
+% City, Country \\
+% email address or ORCID}
+% \and
+% \IEEEauthorblockN{5\textsuperscript{th} Given Name Surname}
+% \IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
+% \textit{name of organization (of Aff.)}\\
+% City, Country \\
+% email address or ORCID}
+% \and
+% \IEEEauthorblockN{6\textsuperscript{th} Given Name Surname}
+% \IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
+% \textit{name of organization (of Aff.)}\\
+% City, Country \\
+% email address or ORCID}
+}
+
+\maketitle
+
+
+\section{Experimental Results}
+
+The experimental results for the proposed technique with different reversible circuits from the revlib library are presented in this section. Tables 5.1–5.14 have detailed fault-wise results for coverage, number of vectors, and execution time. The results are reported separately for both random and directed approaches. The rest of the four tables from 5.15 to 5.19 provide comparative evaluations against prior methods- \cite{ref11},\cite{ref12}, \cite{ref14} and \cite{ref15}—highlighting improvements in coverage, vector efficiency, and overall robustness. Comparison with the genetic algorithm approach \cite{ref11} and the unity method \cite{ref15} is in terms of all three parameters while the comparison with the other two methods is in terms of number of test vectors only.
+
+
+\begin{table*}[t]
+\centering
+\scriptsize
+\caption{Comparison of Proposed Method with 2021 Augmented Circuit Method}
+\label{tab:augmented_2021}
+\begin{tabular}{p{1.3cm} p{0.7cm} p{0.7cm} p{0.7cm} p{0.7cm} p{0.7cm} p{0.7cm} p{0.7cm} p{0.7cm} p{0.7cm} p{0.7cm} p{0.7cm}}
+\hline
+\multirow{2}{*}{\textbf{Circuit}} &
+\multirow{2}{*}{\textbf{\# Gates}} &
+\multirow{2}{*}{\textbf{n (Lines)}} &
+\multirow{2}{*}{\textbf{Fault Model}} &
+\multicolumn{3}{c|}{\textbf{Proposed Method}} &
+\multicolumn{2}{c|}{\textbf{Target Method [1] (2021)}} \\
+\cline{5-9}
+ &  &  & 
+ & \textbf{Proposed \# Faults}
+ & \textbf{Directed \# Vectors}
+ & \textbf{Random \# Vectors}
+ & \textbf{Target \# Faults}
+ & \textbf{Target \# Vectors} \\
+\hline
+4\_49\_17      & 12 & 4  & BF        & 180  & 3 & 3 & 286   & 4 \\
+graycode6\_47 & 5  & 6  & BF        & 247  & 3 & 3 & 684   & 6 \\
+ham3\_102     & 5  & 3  & BF        & 45   & 2 & 2 & 48    & 3 \\
+ham7\_104     & 23 & 7  & BF        & 1480 & 5 & 4 & 5760  & 7 \\
+hwb6\_57      & 65 & 6  & BF, SAF   & 3986 & 5 & 6 & 22700 & 6 \\
+rd32-v0\_66   & 4  & 4  & BF        & 60   & 3 & 3 & 110   & 4 \\
+sym6\_316     & 29 & 14 & BF, SAF   & 7044 & 7 & 6 & 42672 & 6 \\
+\hline
+\end{tabular}
+\end{table*}
+
+
+\begin{table}[t]
+\centering
+\scriptsize
+\caption{Comparison with \cite{ref12} for SBF/MBF/SAF Faults} 
+\begin{tabular}{p{1.3cm} p{1.8cm} p{1.0cm} p{1.0cm}}
+\hline
+\textbf{Circuit} & 
+\textbf{Fault Model} & 
+\textbf{Target \# Vectors} & 
+\textbf{Proposed \# Vectors} \\
+\hline
+
+4\_49\_17 & SBF, MBF & 4 & 4 \\
+graycode6\_47 & SBF, MBF & 6 & 7 \\
+ham3\_102 & SBF, MBF & 3 & 4 \\
+ham7\_104 & SBF, MBF & 7 & 7 \\
+hwb6\_57 & SBF, MBF, SAF & 6 & 4 \\
+rd32-v0\_66 & SBF, MBF & 4 & 2 \\
+sym6\_316 & SBF, MBF, SAF & 6 & 2 \\
+\hline
+\end{tabular}
+\end{table}
+
+
+\begin{table}[t]
+\centering
+\scriptsize
+\caption{Comparison with \cite{ref14}}
+\begin{tabular}{p{1.3cm} p{0.7cm} p{0.7cm} p{0.7cm} p{0.7cm} p{0.7cm} p{0.7cm}}
+\hline
+\textbf{Circuit} & 
+\textbf{\# gates} & 
+\textbf{\# Variables} & 
+\textbf{Fault Model} & 
+\textbf{Total Faults} & 
+\textbf{Target \# Vectors} & 
+\textbf{Proposed \# Vectors} \\
+\hline
+
+3\_17\_13 & 13 & 6 & MMGF & 34 & 6 & 2 \\
+3\_17\_13 & 13 & 6 & PMGF & 34 & 6 & 3 \\
+3\_17\_13 & 13 & 6 & SMGF & 34 & 3 & 2 \\
+4\_49\_17 & 12 & 4 & MMGF & 105 & 66 & 3 \\
+4\_49\_17 & 12 & 4 & PMGF & 105 & 15 & 5 \\
+4\_49\_17 & 12 & 4 & SMGF & 105 & 12 & 3 \\
+ham3\_102 & 5 & 3 & MMGF & 26 & 10 & 2 \\
+ham3\_102 & 5 & 3 & PMGF & 26 & 6 & 2 \\
+ham3\_102 & 5 & 3 & SMGF & 26 & 5 & 2 \\
+mod5d1\_63 & 8 & 5 & MMGF & 56 & 28 & 2 \\
+mod5d1\_63 & 8 & 5 & PMGF & 56 & 12 & 2 \\
+mod5d1\_63 & 8 & 5 & SMGF & 56 & 8 & 1 \\
+rd32-v0\_66 & 4 & 4 & MMGF & 26 & 6 & 2 \\
+rd32-v0\_66 & 4 & 4 & PMGF & 26 & 5 & 3 \\
+rd32-v0\_66 & 4 & 4 & SMGF & 26 & 4 & 2 \\
+\hline
+\end{tabular}
+\end{table}
+
+
+
+\begin{table*}[!t]
+\centering
+\scriptsize
+\caption{Comparison of BF and PMGF Fault Detection Results with Existing Work (2018)}
+\label{tab:comparison_2018}
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{|
+P{1.2cm}|P{0.4cm}|P{0.4cm}|P{0.6cm}|
+P{0.6cm}|P{0.7cm}|P{0.7cm}|P{0.7cm}|P{0.7cm}|P{0.7cm}|P{0.7cm}|
+P{0.6cm}|P{0.7cm}|P{0.7cm}|P{0.7cm}|P{0.7cm}|P{0.7cm}|P{0.7cm}|
+}
+\hline
+\multirow{2}{*}{Circuit} &
+\multirow{2}{*}{Gates} &
+\multirow{2}{*}{Lines} &
+\multirow{2}{*}{Initialization} &
+\multicolumn{7}{c|}{BF Fault Model} &
+\multicolumn{7}{c|}{PMGF Fault Model} \\
+\cline{5-18}
+
+ &  &  &  & 
+ Total No. of faults	& Proposed No. of Test Vectors& 	Proposed Execution Time(s)	& Proposed Coverage(\%)	 & Target  No. of Test Vectors	& Target Execution Time(s)& 	Target  Coverage(\%)
+
+ &
+ Total No. of faults	& Proposed No. of Test Vectors& 	Proposed Execution Time(s)	& Proposed Coverage(\%)	 & Target  No. of Test Vectors	& Target Execution Time(s)& 	Target  Coverage(\%) \\
+\hline
+
+\multirow{2}{*}{0410184\_169} &
+\multirow{2}{*}{46} &
+\multirow{2}{*}{14} &
+Directed &
+5000 &
+7 &
+164.89 &
+100 &
+ &
+4 &
+0.078 &
+100 \\
+\cline{4-12}
+ &  &  & Random &
+5000 &
+7 &
+154.66 &
+100 &
+ &
+3 &
+0.062 &
+100 \\
+\hline
+0410184_169	46	14	Directed	5000	7	164.89	100.00%	4	0.11	100.00%	49	5	1.88	100.00%	4	0.08	100.00%
+0410184_169	46	14	Random	5000	7	154.66	100.00%	9	0.22	100.00%	49	5	1.66	100.00%	3	0.06	100.00%
+3_17_13	6	3	Directed	36	2	0.1	100.00%	-	-	-	7	2	0.04	100.00%	2	0.01	100.00%
+3_17_13	6	3	Random	36	2	0.1	100.00%	-	-	-	7	2	0.04	100.00%	2	0.015	100.00%
+4gt12-v0_86	14	5	Directed	280	4	1.2	100.00%	3	0.015	100.00%	20	5	0.09	95.00%	2	0.01	100.00%
+4gt12-v0_86	14	5	Random	280	4	1.2	100.00%	3	0.015	100.00%	20	5	0.09	95.00%	2	0.015	100.00%
+alu-v0_26	6	5	Directed	120	3	0.54	100.00%	2	0.015	100.00%	8	3	0.05	100.00%	2	0.015	100.00%
+alu-v0_26	6	5	Random	120	3	0.54	100.00%	2	0.01	100.00%	8	3	0.05	100.00%	2	0.01	100.00%
+bw_291	307	87	Directed	5000	9	278.66	100.00%	4	9.593	100.00%	432	9	120.22	100.00%	4	9.593	100.00%
+bw_291	307	87	Random	5000	9	278.66	100.00%	5	16.406	100.00%	432	9	120.22	100.00%	5	16.406	100.00%
+cnt3-5_180	20	16	Directed	4800	6	89.99	100.00%	1	0.657	100.00%	40	6	1.55	100.00%	2	0.078	100.00%
+cnt3-5_180	20	16	Random	4800	6	89.99	100.00%	2	0.719	100.00%	40	6	1.55	100.00%	2	0.453	100.00%
+cycle10_2_110	19	12	Directed	2508	5	29.32	100.00%	2	0.062	100.00%	100	15	242.99	68.00%	2	0.062	100.00%
+cycle10_2_110	19	12	Random	2508	5	29.32	100.00%	2	0.07	100.00%	100	15	242.99	68.00%	2	0.07	100.00%
+cycle10_293	78	39	Directed	5000	8	233.34	100.00%	2	0.828	100.00%	98	7	8.17	100.00%	2	0.828	100.00%
+cycle10_293	78	39	Random	5000	8	233.34	100.00%	3	1.203	100.00%	98	7	8.17	100.00%	3	1.203	100.00%
+graycode6_47	5	6	Directed	150	4	0.75	100.00%	3	0.031	100.00%	5	1	0.03	100.00%	-	-	-
+graycode6_47	5	6	Random	150	4	0.75	100.00%	5	0.093	100	5	1	0.03	100.00%	-	-	-
+ham15_107	132	15	Directed	5000	10	302.39	100.00%	15	12.178	100.00%	352	17	259.23	97.44%	15	12.178	95.74%
+ham15_107	132	15	Random	5000	10	302.39	100.00%	8	45.348	100.00%	352	17	259.23	97.44%	8	45.348	93.18%
+ham15_298	153	45	Directed	5000	9	277.83	100.00%	1	0.109	100.00%	157	5	17.96	100.00%	1	0.109	100.00%
+ham15_298	153	45	Random	5000	9	277.83	100.00%	2	4.48	100.00%	157	5	17.96	100.00%	2	4.48	100.00%
+ham3_102	5	3	Directed	30	2	0.06	100.00%	3	0.01	100.00%	6	3	0.03	100.00%			
+ham3_102	5	3	Random	30	2	0.06	100.00%	3	0.015	100.00%	6	3	0.03	100.00%			
+ham7_104	23	7	Directed	966	5	5.13	100.00%	6	0.34	100.00%	34	5	0.27	100.00%	4	0.06	100.00%
+ham7_104	23	7	Random	966	5	5.13	100.00%	6	0.19	100.00%	34	5	0.27	100.00%	4	0.33	100.00%
+hwb4_51	11	4	Directed	132	2	0.45	100.00%	2	0.02	100.00%	10	3	0.04	100.00%	2	0.02	100.00%
+hwb4_51	11	4	Random	132	2	0.45	100.00%	2	0.02	100.00%	10	3	0.04	100.00%	2	0.02	100.00%
+hwb5_300	88	28	Directed	5000	8	277.53	100.00%				131	6	11.85	100.00%	5	0.58	100.00%
+hwb5_300	88	28	Random	5000	8	277.53	100.00%				131	6	11.85	100.00%	5	0.56	100.00%
+hwb5_54	24	5	Directed	480	4	2.01	100.00%	4	0.02	100.00%	30	6	0.25	96.67%	4	0.02	100.00%
+hwb5_54	24	5	Random	480	4	2.01	100.00%	4	0.13	100.00%	30	6	0.25	96.67%	4	0.13	100.00%
+hwb6_301	159	46	Directed	5000	9	284.32	100.00%	9	5.76	100.00%	241	8	34.84	100.00%	9	5.76	100.00%
+hwb6_301	159	46	Random	5000	9	284.32	100.00%	9	6.64	100.00%	241	8	34.84	100.00%	9	6.64	100.00%
+hwb6_57	65	6	Directed	1950	5	8.56	100.00%	5	0.44	100.00%	122	14	6.62	100.00%	5	0.44	100.00%
+hwb6_57	65	6	Random	1950	5	8.56	100.00%	5	1.52	100.00%	122	14	6.62	100.00%	5	1.52	100.00%
+hwb7_302	281	73	Directed	5000	10	274.46	100.00%	26	39.85	100.00%	426	10	111.3	100.00%	26	39.85	100.00%
+hwb7_302	281	73	Random	5000	10	274.46	100.00%	29	39.96	100.00%	426	10	111.3	100.00%	29	39.96	100.00%
+hwb7_60	166	7	Directed	5000	6	89.29	100.00%	7	9.38	100.00%	396	24	62.14	99.49%	7	9.38	100.00%
+hwb7_60	166	7	Random	5000	6	89.29	100.00%	7	8.94	100.00%	396	24	62.14	99.49%	7	8.94	100.00%
+mod5adder_127	21	6	Directed	630	4	4.22	100.00%				27	10	0.33	100.00%	3	0.02	100.00%
+mod5adder_127	21	6	Random	630	4	4.22	100.00%				27	10	0.33	100.00%	3	0.08	100.00%
+mod5d1_63	7	5	Directed	140	4	0.58	100.00%				8	2	0.04	100.00%	1	0.01	100.00%
+mod5d1_63	7	5	Random	140	4	0.58	100.00%				8	2	0.04	100.00%	2	0.06	100.00%
+mux_246	35	22	Directed	5000	7	138.07	100.00%	2	0.16	100.00%	131	39	242.53	95.42%	2	0.16	25.95%
+mux_246	35	22	Random	5000	7	138.07	100.00%	2	5.54	100.00%	131	39	242.53	95.42%	2	5.54	4.58%
+one-two-three-v0_97	11	5	Directed	220	3	0.91	100.00%	3	0.01	100.00%	23	3	0.1	100.00%	3	0.01	100.00%
+one-two-three-v0_97	11	5	Random	220	3	0.91	100.00%	3	0.01	100.00%	23	3	0.1	100.00%	3	0.02	100.00%
+rd32-v0_66	4	4	Directed	48	3	0.17	100.00%	4	0.01	100.00%	6	3	0.04	100.00%	2	0.02	100.00%
+rd32-v0_66	4	4	Random	48	3	0.17	100.00%	3	0.02	100.00%	6	3	0.04	100.00%	2	0.06	100.00%
+rd53_131	28	7	Directed	1176	5	5.78	100.00%	5	0.02	100.00%	24	9	0.38	95.83%	5	0.02	100.00%
+rd53_131	28	7	Random	1176	5	5.78	100.00%	6	0.05	100.00%	24	9	0.38	95.83%	6	0.05	100.00%
+rd84_142	28	15	Directed	5000	7	113.56	100.00%				49	6	2.9	100.00%	5	0.05	100.00%
+rd84_142	28	15	Random	5000	7	113.56	100.00%				49	6	2.9	100.00%	9	0.13	100.00%
+rd84_313	104	34	Directed	5000	8	296.78	100.00%	16	1.31	100.00%	143	8	15.81	100.00%	16	1.31	100.00%
+rd84_313	104	34	Random	5000	8	296.78	100.00%	21	2.73	100.00%	143	8	15.81	100.00%	21	2.73	100.00%
+ryy6_256	44	17	Directed	5000	7	182.05	100.00%	8	10.86	100.00%	328	46	267.8	20.73%	8	10.86	37.80%
+ryy6_256	44	17	Random	5000	7	182.05	100.00%	8	15.56	100.00%	328	46	267.8	20.73%	8	15.56	37.80%
+squar5_261	43	13	Directed	5000	7	143.54	100.00%	7	0.27	100.00%	95	14	18.66	98.95%	7	0.27	100.00%
+squar5_261	43	13	Random	5000	7	143.54	100.00%	6	0.22	100.00%	95	14	18.66	98.95%	6	0.22	100.00%
+sym6_316	29	14	Directed	5000	7	118.18	100.00%	11	0.06	100.00%	43	5	1.43	100.00%	11	0.06	100.00%
+sym6_316	29	14	Random	5000	7	118.18	100.00%	10	0.08	100.00%	43	5	1.43	100.00%	10	0.03	100.00%
+sym9_148	210	10	Directed	5000	12	301.72	100.00%	1	0.53	100.00%	756	26	254.53	99.87%	1	0.53	100.00%
+sym9_148	210	10	Random	5000	12	301.72	100.00%	1	0.30	100.00%	756	26	254.53	99.87%	1	17.27	100.00%
+sys6-v0_144	10	10	Directed	900	5	10.26	100.00%	4	0.02	100.00%	18	4	0.48	100.00%	4	0.02	100.00%
+sys6-v0_144	10	10	Random	900	5	10.26	100.00%	4	0.02	100.00%	18	4	0.48	100.00%	4	0.02	100.00%
+
+\end{tabular}
+\end{table*}
+
+
+\begin{thebibliography}{00}
+
+\bibitem{ref1}K. N. Patel, J. P. Hayes, and I. L. Markov, “Fault Testing for Reversible Circuits,” IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems, vol. 23, no. 8, pp. 1220–1230, Aug. 2004, doi: https://doi.org/10.1109/tcad.2004.831576.
+\bibitem{ref2}J. P. Hayes, I. Polian, and B. Becker, “Testing for Missing-Gate Faults in Reversible Circuits,” pp. 100–105, Apr. 2005, doi: https://doi.org/10.1109/ats.2004.84.
+\bibitem{ref3}D. P. Vasudevan, P. K. Lala, and J. P. Parkerson, “A Novel Approach for On-line Testable Reversible Logic Circuit Design,” 13th Asian Test Symposium, pp. 325–330, 2025, doi: https://doi.org/10.1109/ats.2004.13.
+\bibitem{ref4}A. Chakraborty, “Synthesis of reversible circuits for testing with universal test set and C-testability of reversible iterative logic arrays,” pp. 249–254, Mar. 2005, doi: https://doi.org/10.1109/icvd.2005.158.
+\bibitem{ref5}H. Rahaman, K. Kole, D. K. Das, and B. B. Bhattacharya, “Optimum Test Set for Bridging Fault Detection in Reversible Circuits,” pp. 125–128, Oct. 2007, doi: https://doi.org/10.1109/ats.2007.91.
+\bibitem{ref6}M. Zamani, N. Farazmand, and M. B. Tahoori, “Fault Masking and Diagnosis in Reversible Circuits,” 2011 Sixteenth IEEE European Test Symposium, pp. 69–74, May 2011, doi: https://doi.org/10.1109/ets.2011.19.
+\bibitem{ref7}M. Zamani, M. B. Tahoori, and K. Chakrabarty, “Ping-pong test: Compact test vector generation for reversible circuits,” Apr. 2012, doi: https://doi.org/10.1109/vts.2012.6231097.
+\bibitem{ref8}R. Wille, N. H. Zhang, and R. Drechsler, “Fault Ordering for Automatic Test Pattern Generation of Reversible Circuits,” pp. 29–34, May 2013, doi: https://doi.org/10.1109/ismvl.2013.28.
+\bibitem{ref9}J. Mondal, B. Mondal, D. Kole, H. Rahaman, and D. K. Das, “Boolean Difference Technique for Detecting All Missing Gate Faults in Reversible Circuits,” 2015 IEEE 18th International Symposium on Design and Diagnostics of Electronic Circuits \& Systems, pp. 95–98, Apr. 2015, doi: https://doi.org/10.1109/ddecs.2015.43.
+\bibitem{ref10}A. N. Nagamani, B. Abhishek, and V. K. Agrawal, “Deterministic approach for bridging fault detection in Peres-Fredkin and Toffoli based reversible circuits,” 2015 IEEE International Conference on Computational Intelligence and Computing Research (ICCIC), pp. 1–6, Dec. 2015, doi: https://doi.org/10.1109/iccic.2015.7435662.
+\bibitem{ref11} A. N. Nagamani, S. N. Anuktha, N. Nanditha, and Vinod Kumar Agrawal, “A Genetic Algorithm-Based Heuristic Method for Test Set Generation in Reversible Circuits,” IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems, vol. 37, no. 2, pp. 324–336, Feb. 2018, doi: https://doi.org/10.1109/tcad.2017.2695881.
+\bibitem{ref12}Mousum Handique, J. K. Deka, and S. Biswas, “Detection of Stuck-at and Bridging Fault in Reversible Circuits using an Augmented Circuit,” pp. 55–60, Nov. 2021, doi: https://doi.org/10.1109/ats52891.2021.00022.
+\bibitem{ref13}B. Mondal, C. Bandyopadhyay, A. Bhattacharjee, D. Roy, S. Parekh, and H. Rahaman, “An Approach for Detection and Localization of Missing Gate Faults in Reversible Circuit,” IETE Journal of Research, vol. 68, no. 5, pp. 3607–3627, Jun. 2020, doi: https://doi.org/10.1080/03772063.2020.1772127.
+\bibitem{ref14}D. Kalita and Mousum Handique, “A Fault Detection Method for Missing Gate Faults in Reversible Circuits Using Binary to Gray Code Conversion,” TENCON 2021 - 2021 IEEE Region 10 Conference (TENCON), pp. 1277–1282, Oct. 2023, doi: https://doi.org/10.1109/tencon58879.2023.10322356.
+\bibitem{ref15}D. Kalita and Mousum Handique, “Identification of Missing Gate Faults in Reversible Circuits by a Unity Method,” vol. 54, pp. 1236–1241, Aug. 2024, doi: https://doi.org/10.1109/iccpct61902.2024.10672995.
+‌\bibitem{ref16}J. Mondal and D. K. Das, “A new online testing technique for reversible circuits,” IET Quantum Communication, vol. 3, no. 1, pp. 50–59, Mar. 2022, doi: https://doi.org/10.1049/qtc2.12035.‌
+\bibitem{ref17}A. Banerjee, “Optimized Test Pattern Generation for Single Missing Gate Fault Detection in Reversible Arithmetic Circuits,” 2022 IEEE International Conference of Electron Devices Society Kolkata Chapter (EDKCON), Nov. 2022, doi: https://doi.org/10.1109/edkcon56221.2022.10032954.
+\bibitem{ref19}B. Mondal, C. Bandyopadhyay, A. Bhattacharjee, and H. Rahaman, “An Online Testing Scheme for Detection of Gate Faults in ESOP-Based Reversible Circuit,” Journal of The Institution of Engineers (India) Series B, vol. 100, no. 4, pp. 309–319, Jun. 2019, doi: https://doi.org/10.1007/s40031-019-00413-z.
+\bibitem{ref20}J. Mondal and D. K. Das, “An Improved Online Testing Technique For Reversible Circuits,” pp. 1–5, Mar. 2020, doi: https://doi.org/10.1109/isdcs49393.2020.9262971.
+\bibitem{ref21}L. Jungmann, “RevLib - An Online resource for Reversible Benchmarks,” Revlib.org, 2025. https://revlib.org/realizations.php (accessed Sep. 23, 2025).
+\end{thebibliography}
+
+\vspace{12pt}
+\color{red}
+IEEE conference templates contain guidance text for composing and formatting conference papers. Please ensure that all template text is removed from your conference paper prior to submission to the conference. Failure to remove the template text from your paper may result in your paper not being published.
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}

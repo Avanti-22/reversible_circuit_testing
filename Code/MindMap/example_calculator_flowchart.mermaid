@@ -1,0 +1,33 @@
+flowchart TD
+    Start([Start Program])
+    Start --> Imports[Import Modules]
+    Imports --> Globals[Initialize Global Variables]
+    Globals --> Func_add[Define add()]
+        add_flow_0{DEBUG_MODE?}
+    Globals --> Func_subtract[Define subtract()]
+    Globals --> Func_multiply[Define multiply()]
+    Globals --> Func_divide[Define divide()]
+        divide_flow_0{b == 0?}
+    Globals --> Func_calculate_average[Define calculate_average()]
+        calculate_average_flow_0{not numbers?}
+        calculate_average_flow_1[For num in numbers]
+    Globals --> Func_factorial[Define factorial()]
+        factorial_flow_0{n < 0?}
+        factorial_flow_1{n == 0 or n == 1?}
+        factorial_flow_2[For i in range(2, n + 1)]
+    Globals --> Func_main[Define main()]
+    Globals --> Class_Calculator[Define Class Calculator]
+    Class_Calculator --> Method_Calculator___init__[Method: __init__()]
+    Class_Calculator --> Method_Calculator_add_to_memory[Method: add_to_memory()]
+    Class_Calculator --> Method_Calculator_subtract_from_memory[Method: subtract_from_memory()]
+    Class_Calculator --> Method_Calculator_clear_memory[Method: clear_memory()]
+    Class_Calculator --> Method_Calculator_get_memory[Method: get_memory()]
+    Class_Calculator --> Method_Calculator__log_operation[Method: _log_operation()]
+    Class_Calculator --> Method_Calculator_get_history[Method: get_history()]
+    Globals --> Class_ScientificCalculator[Define Class ScientificCalculator]
+    Class_ScientificCalculator --> Method_ScientificCalculator_power[Method: power()]
+    Class_ScientificCalculator --> Method_ScientificCalculator_square_root[Method: square_root()]
+            ScientificCalculator_square_root_flow_0{value < 0?}
+    Class_ScientificCalculator --> Method_ScientificCalculator_sin[Method: sin()]
+    Class_ScientificCalculator --> Method_ScientificCalculator_cos[Method: cos()]
+    Globals --> End([End Program])
