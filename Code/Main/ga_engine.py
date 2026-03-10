@@ -660,7 +660,7 @@ class GeneticAlgorithm:
     def stage_i_input_Parameter_extratcion(self):
         self.n = self.circuit["No of Lines"]
         self.N = self.circuit["No of Gates"]
-        self.max_no_of_TV = 2 ** self.n
+        self.max_no_of_TV = 2 ** self.n if self.n < 20 else 2 ** 20  # cap at 1M for sanity
         print(f"Population size: {self.n} | Gates: {self.N} | Max TV: {self.max_no_of_TV}")
 
     # ── Stage II ─────────────────────────────────────────────────────────────
@@ -673,7 +673,7 @@ class GeneticAlgorithm:
             return random.sample(range(self.max_no_of_TV), test_size)
         else:
             print("Using random sampling with replacement for initial population.")
-            return [random.randrange(0,2 ** 10) for _ in range(test_size)]
+            return [random.randrange(0, self.max_no_of_TV) for _ in range(test_size)]
 
     # ── Utilities ────────────────────────────────────────────────────────────
 
