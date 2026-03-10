@@ -132,7 +132,7 @@ def faulty_op_for_MMGF(circuit, input_bits, max_missing=2, sample_limit=10000):
 
     total_gates = circuit["No of Gates"]
     faulty_outputs = []
-
+    fault_count =0
     max_missing = min(max_missing, total_gates)
 
     # -----------------------------------------------
@@ -679,7 +679,7 @@ def faulty_op_for_BF(circuit, input_bits):
     For n=4 lines: was 12 faults/gate → now 6 faults/gate
     For n=8 lines: was 56 faults/gate → now 14 faults/gate
     """
-
+    fault_count =0
     faulty_outputs = []
     total_gates = circuit["No of Gates"]
     num_lines = circuit["No of Lines"]
@@ -694,28 +694,29 @@ def faulty_op_for_BF(circuit, input_bits):
             wire_bit_2 = 1 << wire2
 
             # AND-bridging
-            faulty_output = simulate_BF_circuit(
-                circuit,
-                input_bits,
-                faulty_gate_index=gate_index,
-                wire_bit_1=wire_bit_1,
-                wire_bit_2=wire_bit_2,
-                mode=0
-            )
-            faulty_outputs.append(faulty_output)
+            # faulty_output = simulate_BF_circuit(
+            #     circuit,
+            #     input_bits,
+            #     faulty_gate_index=gate_index,
+            #     wire_bit_1=wire_bit_1,
+            #     wire_bit_2=wire_bit_2,
+            #     mode=0
+            # )
+            # faulty_outputs.append(faulty_output)
 
             # OR-bridging
-            faulty_output = simulate_BF_circuit(
-                circuit,
-                input_bits,
-                faulty_gate_index=gate_index,
-                wire_bit_1=wire_bit_1,
-                wire_bit_2=wire_bit_2,
-                mode=1
-            )
-            faulty_outputs.append(faulty_output)
+            # faulty_output = simulate_BF_circuit(
+            #     circuit,
+            #     input_bits,
+            #     faulty_gate_index=gate_index,
+            #     wire_bit_1=wire_bit_1,
+            #     wire_bit_2=wire_bit_2,
+            #     mode=1
+            # )
+            # faulty_outputs.append(faulty_output)
+            fault_count += 2
 
-    return faulty_outputs
+    return fault_count
 
 
 def build_single_bridging_faults(num_lines):
@@ -827,6 +828,7 @@ def faulty_op_for_MBF(circuit,
     """
 
     faulty_outputs = []
+    fault_count =0
     total_gates = circuit["No of Gates"]
     num_lines = circuit["No of Lines"]
 
@@ -855,16 +857,17 @@ def faulty_op_for_MBF(circuit,
                 ):
                     continue
 
-                faulty_output = simulate_MBF_circuit(
-                    circuit,
-                    input_bits,
-                    faulty_gate_index=gate_index,
-                    fault_list=fault_subset
-                )
+                # faulty_output = simulate_MBF_circuit(
+                #     circuit,
+                #     input_bits,
+                #     faulty_gate_index=gate_index,
+                #     fault_list=fault_subset
+                # )
 
-                faulty_outputs.append(faulty_output)
+                # faulty_outputs.append(faulty_output)
+                fault_count += 1
 
-    return faulty_outputs
+    return fault_count
 
 def get_all_faulty_outputs(circuit, testVec, fault_model):
 
