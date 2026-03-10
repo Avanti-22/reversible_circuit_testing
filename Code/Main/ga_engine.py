@@ -661,6 +661,7 @@ class GeneticAlgorithm:
         self.n = self.circuit["No of Lines"]
         self.N = self.circuit["No of Gates"]
         self.max_no_of_TV = 2 ** self.n
+        print(f"Population size: {self.n} | Gates: {self.N} | Max TV: {self.max_no_of_TV}")
 
     # ── Stage II ─────────────────────────────────────────────────────────────
 
@@ -668,8 +669,10 @@ class GeneticAlgorithm:
         if test_size is None:
             test_size = self.n
         if self.max_no_of_TV <= 2000:  # small circuits: unique sampling for better initial diversity
+            print("Using unique sampling for initial population.")
             return random.sample(range(self.max_no_of_TV), test_size)
         else:
+            print("Using random sampling with replacement for initial population.")
             return [random.randrange(self.max_no_of_TV) for _ in range(test_size)]
 
     # ── Utilities ────────────────────────────────────────────────────────────
