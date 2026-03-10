@@ -1,36 +1,4 @@
-"""
-localization_pipeline.py
-════════════════════════════════════════════════════════════════════════════════
-RSVS Fault Localization Pipeline
-Mirrors the structure of experiment_runner.py
 
-Takes:
-  • path          — folder/file of .real circuits (same as run_pipeline)
-  • detection_csv — the GA_DP.csv sheet produced by your existing pipeline
-                    (must contain columns: Circuit Name, Fault Model,
-                     Best Vector Set, No of Lines, No of Gates)
-
-For every (circuit, fault_model) row in the detection sheet:
-  1. Parses the .real file
-  2. Recovers the complete test set from "Best Vector Set"
-  3. Builds the RSVS offline fault dictionary
-  4. Runs localization for all faults detectable by that test set
-  5. Saves localisation results to  Output/RSVS_Localization.csv
-     (appended row-by-row, thread-safe, same pattern as results_logger.py)
-
-Usage (drop this file into Code/Main/ and run):
-────────────────────────────────────────────────
-    from localization_pipeline import run_localization_pipeline
-
-    run_localization_pipeline(
-        path          = r"Benchmarks Used in Base Paper\All Circuits",
-        detection_csv = r"Code\Main\Output\GA_DP.csv",
-        fault_models  = ["SMGF", "MMGF", "PMGF"],
-        max_workers   = 4,
-        verbose       = True
-    )
-════════════════════════════════════════════════════════════════════════════════
-"""
 
 from __future__ import annotations
 
