@@ -661,7 +661,6 @@ class GeneticAlgorithm:
         self.n = self.circuit["No of Lines"]
         self.N = self.circuit["No of Gates"]
         self.max_no_of_TV = 2 ** self.n if self.n < 20 else 2 ** 20  # cap at 1M for sanity
-        print(f"Population size: {self.n} | Gates: {self.N} | Max TV: {self.max_no_of_TV}")
 
     # ── Stage II ─────────────────────────────────────────────────────────────
 
@@ -669,10 +668,8 @@ class GeneticAlgorithm:
         if test_size is None:
             test_size = self.n
         if self.max_no_of_TV <= 2000:  # small circuits: unique sampling for better initial diversity
-            print("Using unique sampling for initial population.")
             return random.sample(range(self.max_no_of_TV), test_size)
         else:
-            print("Using random sampling with replacement for initial population.")
             return [random.randrange(0, self.max_no_of_TV) for _ in range(test_size)]
 
     # ── Utilities ────────────────────────────────────────────────────────────
@@ -701,14 +698,14 @@ class GeneticAlgorithm:
         fault_free_output = simulate_fault_free(self.circuit, vector)
         faulty_outputs = get_all_faulty_outputs(
             self.circuit, vector, self.faultModel)
-        self.cumulatedFaults = faulty_outputs
+        self.cumulatedFaults = len(faulty_outputs)
 
-        # detected_fault_array = self.get_detected_faults_row(fault_free_output, faulty_outputs)
-        # detected = int(np.sum(detected_fault_array))
-        # coverage = (detected / self.cumulatedFaults) * 100 if self.cumulatedFaults else 0
+        detected_fault_array = self.get_detected_faults_row(fault_free_output, faulty_outputs)
+        detected = int(np.sum(detected_fault_array))
+        coverage = (detected / self.cumulatedFaults) * 100 if self.cumulatedFaults else 0
 
-        # self.fault_cache[vector] = (coverage, detected_fault_array)
-        # return coverage, detected_fault_array
+        self.fault_cache[vector] = (coverage, detected_fault_array)
+        return coverage, detected_fault_array
         
 
     # ── Fitness for Population ────────────────────────────────────────────────
@@ -722,102 +719,71 @@ class GeneticAlgorithm:
             if self._check_time_limit():
               self._log("TLE hit during fitness computation — aborting population eval.")
               break
-            self.stage_iii_fitness_function_computation(vec)  
-            # coverage, detected_faults_row = self.stage_iii_fitness_function_computation(vec)
-            # fitnesses.append(coverage)
-            # rows.append(detected_faults_row)
-            # vector_map[vec] = i
+            coverage, detected_faults_row = self.stage_iii_fitness_function_computation(vec)
+            fitnesses.append(coverage)
+            rows.append(detected_faults_row)
+            vector_map[vec] = i
 
-            # if coverage >= self.threshold:
-            #     self._log_detail(f"Singleton vector {vec} achieves 100% — early exit.")
-            #     return fitnesses, np.array(rows, dtype=bool), vector_map, True  # ← singleton flag
-            #     # break
+            if coverage >= self.threshold:
+                self._log_detail(f"Singleton vector {vec} achieves 100% — early exit.")
+                return fitnesses, np.array(rows, dtype=bool), vector_map, True  # ← singleton flag
+                # break
 
-        # return fitnesses, np.array(rows, dtype=bool), vector_map, False
+        return fitnesses, np.array(rows, dtype=bool), vector_map, False
 
     # ── Stage IV ─────────────────────────────────────────────────────────────
 
-    # def stage_iv_roulette_wheel_selection(self, fitnessFunction, population):
-    #     total_fitness = sum(fitnessFunction)
-    #     if total_fitness == 0:
-    #         probabilities = [1 / len(fitnessFunction)] * len(fitnessFunction)
-    #     else:
-    #         probabilities = [f / total_fitness for f in fitnessFunction]
+    def stage_iv_roulette_wheel_selection(self, fitnessFunction, population):
+        total_fitness = sum(fitnessFunction)
+        if total_fitness == 0:
+            probabilities = [1 / len(fitnessFunction)] * len(fitnessFunction)
+        else:
+            probabilities = [f / total_fitness for f in fitnessFunction]
 
-    #     parent_pairs = []
-    #     for _ in range(self.n):
-    #         p1 = random.choices(population, weights=probabilities)[0]
-    #         p2 = random.choices(population, weights=probabilities)[0]
-    #         parent_pairs.append((p1, p2))
+        parent_pairs = []
+        for _ in range(self.n):
+            p1 = random.choices(population, weights=probabilities)[0]
+            p2 = random.choices(population, weights=probabilities)[0]
+            parent_pairs.append((p1, p2))
 
-    #     return parent_pairs
+        return parent_pairs
 
     # # ── Stage V ──────────────────────────────────────────────────────────────
 
-    # def stage_v_crossover(self, parent_pairs):
-    #     children = []
-    #     for p1, p2 in parent_pairs:
-    #         b1 = self.represent_the_vec_in_binary(p1)
-    #         b2 = self.represent_the_vec_in_binary(p2)
-    #         cp = random.randint(1, self.n - 1)
-    #         child = self.represent_bin_in_int(b1[:cp] + b2[cp:])
-    #         children.append(child)
-    #     return children
+    def stage_v_crossover(self, parent_pairs):
+        children = []
+        for p1, p2 in parent_pairs:
+            b1 = self.represent_the_vec_in_binary(p1)
+            b2 = self.represent_the_vec_in_binary(p2)
+            cp = random.randint(1, self.n - 1)
+            child = self.represent_bin_in_int(b1[:cp] + b2[cp:])
+            children.append(child)
+        return children
 
     # # ── Stage VI ─────────────────────────────────────────────────────────────
 
-    # def stage_vi_mutation(self, children):
-    #     mutated = []
-    #     max_val = (10 ** (self.current_generation + 1)) - 1
+    def stage_vi_mutation(self, children):
+        mutated = []
+        max_val = (10 ** (self.current_generation + 1)) - 1
 
-    #     for child in children:
-    #         if random.randint(0, max_val) < 10:
-    #             cb = self.represent_the_vec_in_binary(child)
-    #             flip = random.randint(0, self.n - 1)
-    #             cb[flip] ^= 1
-    #             mutated.append(self.represent_bin_in_int(cb))
-    #         else:
-    #             mutated.append(child)
+        for child in children:
+            if random.randint(0, max_val) < 10:
+                cb = self.represent_the_vec_in_binary(child)
+                flip = random.randint(0, self.n - 1)
+                cb[flip] ^= 1
+                mutated.append(self.represent_bin_in_int(cb))
+            else:
+                mutated.append(child)
 
-    #     return mutated
+        return mutated
 
-    # # ── Stage VII ────────────────────────────────────────────────────────────
-
-    # # def stage_vii_test_population_generation(self, init_pop, child_pop):
-    # #     combined_population = list(set(init_pop + child_pop))
-    # #     combined_fitnesses, combined_fault_matrix, combined_vector_map = \
-    # #         self.compute_fitness_for_population(combined_population)
-
-    # #     if not combined_fitnesses:
-    # #         return init_pop, [], np.array([]), {}
-
-    # #     sorted_pairs = sorted(
-    # #         zip(combined_fitnesses, combined_population),
-    # #         reverse=True
-    # #     )
-    # #     sorted_fitnesses, sorted_pop = zip(*sorted_pairs)
-
-    # #     return list(sorted_pop), sorted_fitnesses, combined_fault_matrix, combined_vector_map
-
+    # ── Stage VII ────────────────────────────────────────────────────────────
 
     # def stage_vii_test_population_generation(self, init_pop, child_pop):
-    
-    #     # Preserves order AND deduplicates — unlike set()
-    #     seen = set()
-    #     combined_population = []
-    #     for v in init_pop + child_pop:
-    #         if v not in seen:
-    #             seen.add(v)
-    #             combined_population.append(v)
-
-    #     combined_fitnesses, combined_fault_matrix, combined_vector_map, singleton_hit  = \
+    #     combined_population = list(set(init_pop + child_pop))
+    #     combined_fitnesses, combined_fault_matrix, combined_vector_map = \
     #         self.compute_fitness_for_population(combined_population)
 
-
-    #     if singleton_hit:
-    #         winning_vec = list(combined_vector_map.keys())[-1]
-    #         return [winning_vec], [combined_fitnesses[-1]], combined_fault_matrix, combined_vector_map
-        
     #     if not combined_fitnesses:
     #         return init_pop, [], np.array([]), {}
 
@@ -830,41 +796,71 @@ class GeneticAlgorithm:
     #     return list(sorted_pop), sorted_fitnesses, combined_fault_matrix, combined_vector_map
 
 
-    # # ── Stage VIII ───────────────────────────────────────────────────────────
-    # # Greedy set cover: O(n²) vs original exhaustive O(C(n,k) * k)
-    # # For n=14: original tries thousands of combos; greedy picks best in n passes
+    def stage_vii_test_population_generation(self, init_pop, child_pop):
+    
+        # Preserves order AND deduplicates — unlike set()
+        seen = set()
+        combined_population = []
+        for v in init_pop + child_pop:
+            if v not in seen:
+                seen.add(v)
+                combined_population.append(v)
 
-    # def stage_viii_minimal_test_set(self, fin_pop, fault_matrix, vector_map):
-    #     if not fin_pop or self.cumulatedFaults == 0:
-    #         return [], 0.0
+        combined_fitnesses, combined_fault_matrix, combined_vector_map, singleton_hit  = \
+            self.compute_fitness_for_population(combined_population)
 
-    #     covered = np.zeros(self.cumulatedFaults, dtype=bool)
-    #     selected = []
-    #     remaining = list(fin_pop)
 
-    #     while remaining:
-    #         if self._check_time_limit():
-    #             break
+        if singleton_hit:
+            winning_vec = list(combined_vector_map.keys())[-1]
+            return [winning_vec], [combined_fitnesses[-1]], combined_fault_matrix, combined_vector_map
+        
+        if not combined_fitnesses:
+            return init_pop, [], np.array([]), {}
 
-    #         # Pick vector covering the most NEW faults
-    #         best_vec = max(
-    #             remaining,
-    #             key=lambda v: int(np.sum(fault_matrix[vector_map[v]] & ~covered))
-    #         )
+        sorted_pairs = sorted(
+            zip(combined_fitnesses, combined_population),
+            reverse=True
+        )
+        sorted_fitnesses, sorted_pop = zip(*sorted_pairs)
 
-    #         new_faults = fault_matrix[vector_map[best_vec]] & ~covered
-    #         if not np.any(new_faults):
-    #             break
+        return list(sorted_pop), sorted_fitnesses, combined_fault_matrix, combined_vector_map
 
-    #         covered |= fault_matrix[vector_map[best_vec]]
-    #         selected.append(best_vec)
-    #         remaining.remove(best_vec)
 
-    #         if (int(np.sum(covered)) / self.cumulatedFaults) * 100 >= self.threshold:
-    #             break
+    # ── Stage VIII ───────────────────────────────────────────────────────────
+    # Greedy set cover: O(n²) vs original exhaustive O(C(n,k) * k)
+    # For n=14: original tries thousands of combos; greedy picks best in n passes
 
-    #     final_coverage = (int(np.sum(covered)) / self.cumulatedFaults) * 100
-    #     return selected, final_coverage
+    def stage_viii_minimal_test_set(self, fin_pop, fault_matrix, vector_map):
+        if not fin_pop or self.cumulatedFaults == 0:
+            return [], 0.0
+
+        covered = np.zeros(self.cumulatedFaults, dtype=bool)
+        selected = []
+        remaining = list(fin_pop)
+
+        while remaining:
+            if self._check_time_limit():
+                break
+
+            # Pick vector covering the most NEW faults
+            best_vec = max(
+                remaining,
+                key=lambda v: int(np.sum(fault_matrix[vector_map[v]] & ~covered))
+            )
+
+            new_faults = fault_matrix[vector_map[best_vec]] & ~covered
+            if not np.any(new_faults):
+                break
+
+            covered |= fault_matrix[vector_map[best_vec]]
+            selected.append(best_vec)
+            remaining.remove(best_vec)
+
+            if (int(np.sum(covered)) / self.cumulatedFaults) * 100 >= self.threshold:
+                break
+
+        final_coverage = (int(np.sum(covered)) / self.cumulatedFaults) * 100
+        return selected, final_coverage
 
     # ── Main Run ─────────────────────────────────────────────────────────────
 
@@ -892,103 +888,102 @@ class GeneticAlgorithm:
 
             # Fitness
             self._log_detail("Stage III: Fitness Evaluation")
-            # init_fitnesses, init_detected_matrix, init_vector_map, singleton_hit = \
-            #     self.compute_fitness_for_population(init_population)
-            self.compute_fitness_for_population(init_population)
-            # if singleton_hit:
-            #     self._log("Terminated: Single vector achieves 100% coverage.")
-            #     self.best_coverage = 100.0
-            #     self.best_vector_set = [list(init_vector_map.keys())[-1]]  # the winning vector
-            #     self.detectedFaults = init_detected_matrix[-1]
-            #     break
+            init_fitnesses, init_detected_matrix, init_vector_map, singleton_hit = \
+                self.compute_fitness_for_population(init_population)
+            if singleton_hit:
+                self._log("Terminated: Single vector achieves 100% coverage.")
+                self.best_coverage = 100.0
+                self.best_vector_set = [list(init_vector_map.keys())[-1]]  # the winning vector
+                self.detectedFaults = init_detected_matrix[-1]
+                break
 
-            # # ── TLE or empty — abort generation immediately ───────────────────────
-            # if self._time_limit_exceeded or not init_fitnesses:
-            #     self._log("Terminated: TLE or empty fitness — skipping remaining generations.")
-            #     break
+            # ── TLE or empty — abort generation immediately ───────────────────────
+            if self._time_limit_exceeded or not init_fitnesses:
+                self._log("Terminated: TLE or empty fitness — skipping remaining generations.")
+                break
 
-            # max_fit = max(init_fitnesses)
-            # min_fit = min(init_fitnesses)
-            # avg_fit = sum(init_fitnesses) / len(init_fitnesses)
-            # self._log_detail(
-            #     f"Fitness — Max: {max_fit:.4f} | Min: {min_fit:.4f} | Avg: {avg_fit:.4f}"
-            # )
+            max_fit = max(init_fitnesses)
+            min_fit = min(init_fitnesses)
+            avg_fit = sum(init_fitnesses) / len(init_fitnesses)
+            self._log_detail(
+                f"Fitness — Max: {max_fit:.4f} | Min: {min_fit:.4f} | Avg: {avg_fit:.4f}"
+            )
 
-            # # Selection
-            # self._log_detail("Stage IV: Roulette Wheel Selection")
-            # parents = self.stage_iv_roulette_wheel_selection(init_fitnesses, init_population)
-            # self._log_detail(f"Selected Parents: {parents}")
+            # Selection
+            self._log_detail("Stage IV: Roulette Wheel Selection")
+            parents = self.stage_iv_roulette_wheel_selection(init_fitnesses, init_population)
+            self._log_detail(f"Selected Parents: {parents}")
 
-            # # Crossover
-            # self._log_detail("Stage V: Crossover")
-            # children = self.stage_v_crossover(parents)
-            # self._log_detail(f"Children: {children}")
+            # Crossover
+            self._log_detail("Stage V: Crossover")
+            children = self.stage_v_crossover(parents)
+            self._log_detail(f"Children: {children}")
 
-            # # Mutation
-            # self._log_detail("Stage VI: Mutation")
-            # mutated_children = self.stage_vi_mutation(children)
-            # self._log_detail(f"Mutated Children: {mutated_children}")
+            # Mutation
+            self._log_detail("Stage VI: Mutation")
+            mutated_children = self.stage_vi_mutation(children)
+            self._log_detail(f"Mutated Children: {mutated_children}")
 
-            # # Population Update
-            # self._log_detail("Stage VII: Test Population Generation")
-            # fin_sorted_population, fin_sorted_fitnesses, \
-            # fin_detected_matrix, fin_vector_map = \
-            #     self.stage_vii_test_population_generation(init_population, mutated_children)
+            # Population Update
+            self._log_detail("Stage VII: Test Population Generation")
+            fin_sorted_population, fin_sorted_fitnesses, \
+            fin_detected_matrix, fin_vector_map = \
+                self.stage_vii_test_population_generation(init_population, mutated_children)
 
-            # self._log_detail(f"Sorted Population: {fin_sorted_population}")
-            # self._log_detail(f"Sorted Fitnesses:  {fin_sorted_fitnesses}")
+            self._log_detail(f"Sorted Population: {fin_sorted_population}")
+            self._log_detail(f"Sorted Fitnesses:  {fin_sorted_fitnesses}")
 
-            # # Coverage
-            # combined_detected_list = np.any(fin_detected_matrix, axis=0)
-            # detected_faults = int(np.sum(combined_detected_list))
-            # fault_coverage = (detected_faults / self.cumulatedFaults) * 100
-            # self._log_detail(
-            #     f"Coverage — Detected: {detected_faults} / {self.cumulatedFaults}"
-            #     f" = {fault_coverage:.2f}%"
-            # )
+            # Coverage
+            combined_detected_list = np.any(fin_detected_matrix, axis=0)
+            detected_faults = int(np.sum(combined_detected_list))
+            fault_coverage = (detected_faults / self.cumulatedFaults) * 100
+            self._log_detail(
+                f"Coverage — Detected: {detected_faults} / {self.cumulatedFaults}"
+                f" = {fault_coverage:.2f}%"
+            )
 
-            # # Minimization
-            # if not self.skip_minimization:
-            #     self._log_detail("Stage VIII: Minimal Test Set Reduction (Greedy)")
-            #     min_set, min_cov = self.stage_viii_minimal_test_set(
-            #         fin_sorted_population, fin_detected_matrix, fin_vector_map
-            #     )
-            #     self._log_detail(f"Minimal Set Coverage: {min_cov:.2f}%")
+            # Minimization
+            if not self.skip_minimization:
+                self._log_detail("Stage VIII: Minimal Test Set Reduction (Greedy)")
+                min_set, min_cov = self.stage_viii_minimal_test_set(
+                    fin_sorted_population, fin_detected_matrix, fin_vector_map
+                )
+                self._log_detail(f"Minimal Set Coverage: {min_cov:.2f}%")
 
-            #     if min_cov >= fault_coverage:
-            #         fault_coverage = min_cov
-            #         test_vectors = min_set
-            #         self._log_detail("Minimal set accepted.")
-            #     else:
-            #         test_vectors = fin_sorted_population
-            #         self._log_detail("Original sorted population retained.")
-            # else:
-            #     test_vectors = fin_sorted_population
+                if min_cov >= fault_coverage:
+                    fault_coverage = min_cov
+                    test_vectors = min_set
+                    self._log_detail("Minimal set accepted.")
+                else:
+                    test_vectors = fin_sorted_population
+                    self._log_detail("Original sorted population retained.")
+            else:
+                test_vectors = fin_sorted_population
 
-            # # Best Update
-            # if fault_coverage > self.best_coverage:
-            #     self.best_coverage = fault_coverage
-            #     self.best_vector_set = test_vectors
-            #     self.detectedFaults = combined_detected_list
-            #     self._log_detail(f"New best coverage: {self.best_coverage:.2f}%")
+            # Best Update
+            if fault_coverage > self.best_coverage:
+                self.best_coverage = fault_coverage
+                self.best_vector_set = test_vectors
+                self.detectedFaults = combined_detected_list
+                self._log_detail(f"New best coverage: {self.best_coverage:.2f}%")
 
-            # # Compact Log
-            # self._log_compact(
-            #     f"Gen {gen:03d} | "
-            #     f"MaxFit: {max_fit:.4f} | "
-            #     f"AvgFit: {avg_fit:.4f} | "
-            #     f"Cov: {fault_coverage:6.2f}% | "
-            #     f"Best: {self.best_coverage:6.2f}% | "
-            #     f"Pop: {len(test_vectors)}"
-            # )
+            # Compact Log
+            self._log_compact(
+                f"Gen {gen:03d} | "
+                f"MaxFit: {max_fit:.4f} | "
+                f"AvgFit: {avg_fit:.4f} | "
+                f"Cov: {fault_coverage:6.2f}% | "
+                f"Best: {self.best_coverage:6.2f}% | "
+                f"Pop: {len(test_vectors)}"
+            )
 
-            # # Threshold Check
-            # if fault_coverage >= self.threshold:
-            #     self._log("Terminated: Coverage threshold reached.")
-            #     break
+            # Threshold Check
+            if fault_coverage >= self.threshold:
+                self._log("Terminated: Coverage threshold reached.")
+                break
 
-            # init_population = test_vectors[:self.population_size]
-            # self._log_detail(f"Next gen population (trimmed): {len(init_population)}")
+            init_population = test_vectors[:self.population_size]
+            self._log_detail(f"Next gen population (trimmed): {len(init_population)}")
 
             gc.collect()
 
@@ -1007,12 +1002,13 @@ class GeneticAlgorithm:
             "No of Lines":          self.circuit["No of Lines"],
             "No of Gates":          self.circuit["No of Gates"],
             "Fault Model":          self.faultModel,
-            # "Actual Generations":   self.current_generation + 1,
+            "Actual Generations":   self.current_generation + 1,
             "Total Faults":         self.cumulatedFaults,
-            # "Detected Faults":      int(np.sum(self.detectedFaults)) if self.detectedFaults is not None else 0,
-            # "Fault Coverage":       self.best_coverage,
-            # "Test Set Size":        len(self.best_vector_set),
+            "Detected Faults":      int(np.sum(self.detectedFaults)) if self.detectedFaults is not None else 0,
+            "Fault Coverage":       self.best_coverage,
+            "Best Vector Set":      self.best_vector_set,
+            "Test Set Size":        len(self.best_vector_set),
             "Execution Time":       round(self.execution_time, 4),
-            # "Time Limit Exceeded":  self._time_limit_exceeded,
-            # "Minimization Skipped": self.skip_minimization,
+            "Time Limit Exceeded":  self._time_limit_exceeded,
+            "Minimization Skipped": self.skip_minimization,
         }

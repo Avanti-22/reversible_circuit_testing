@@ -31,13 +31,13 @@ from filelock import FileLock
 from datetime import timezone
 import pytz
 
-output_path=r"Code\Main\Output"
+output_path="Code\Main\Output"
 
 
 def save_results_to_csv(results, output_dir=output_path):
     # output_dir = os.path.dirname(os.path.abspath(source_filepath))
-    master_csv_path = os.path.join(output_dir, "no_of_faults.csv")
-    lock_path = os.path.join(output_dir, "no_of_faults.lock")
+    master_csv_path = os.path.join(output_dir, "GA_DP.csv")
+    lock_path = os.path.join(output_dir, "GA_DP.lock")
 
     ist = pytz.timezone('Asia/Kolkata')
     now = datetime.now(ist)
