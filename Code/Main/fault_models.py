@@ -70,49 +70,134 @@ def faulty_op_for_SMGF(circuit, input_state):
 from itertools import combinations
 
 
+# def faulty_op_for_MMGF(circuit, input_bits, max_missing=2, sample_limit=10000):
+#     """
+#     Generate outputs for all MMGF fault combinations.
+#     Capped at max_missing simultaneously missing gates to avoid 2^n blowup.
+#     """
+
+#     total_gates = circuit["No of Gates"]
+#     faulty_outputs = []
+
+#     max_missing = min(max_missing, total_gates - 1)
+#     fault_count = 0
+#     if total_gates < 50:
+#         for num_missing in range(1, max_missing + 1):
+
+#             for faulty_subset in combinations(range(total_gates), num_missing):
+
+#                 # faulty_set = set(faulty_subset)
+
+#                 # faulty_output = simulate_MMGF_circuit(
+#                 #     circuit,
+#                 #     input_bits,
+#                 #     faulty_set
+#                 # )
+#                 fault_count += 1
+#                 # faulty_outputs.append(1)
+
+#         return fault_count
+    
+#     for _ in range(sample_limit):
+#         num_to_drop = random.randint(1, max_missing)
+#         faulty_subset = random.sample(range(total_gates), num_to_drop)
+#         # faulty_set = set(faulty_subset)
+
+#         # faulty_output = simulate_MMGF_circuit(
+#         #     circuit,
+#         #     input_bits,
+#         #     faulty_set
+#         # )
+#         fault_count += 1
+#         # faulty_outputs.append(1)
+#     return fault_count
+
 def faulty_op_for_MMGF(circuit, input_bits, max_missing=2, sample_limit=10000):
     """
-    Generate outputs for all MMGF fault combinations.
-    Capped at max_missing simultaneously missing gates to avoid 2^n blowup.
+    Generate outputs for MMGF faults — consecutive gates only.
+
+    For small circuits (total_gates < 50):
+        Exhaustively enumerates all consecutive windows of size 1..max_missing.
+        Total combinations = sum_{w=1}^{max_missing} (n - w + 1)
+        e.g., n=20, max_missing=2 → 39 faults only.
+
+    For large circuits (total_gates >= 50):
+        Randomly samples up to sample_limit consecutive windows.
+        Window size is randomly chosen between 1 and max_missing,
+        and the start position is randomly chosen to fit the window.
+
+    max_missing  : maximum consecutive gates to skip. Default 2.
+    sample_limit : max random samples for large circuits. Default 10000.
     """
 
     total_gates = circuit["No of Gates"]
     faulty_outputs = []
 
-    max_missing = min(max_missing, total_gates - 1)
-    fault_count = 0
+    max_missing = min(max_missing, total_gates)
+
+    # -----------------------------------------------
+    # Small circuit — exhaustive consecutive windows
+    # -----------------------------------------------
     if total_gates < 50:
-        for num_missing in range(1, max_missing + 1):
 
-            for faulty_subset in combinations(range(total_gates), num_missing):
+        for window_size in range(1, max_missing + 1):
 
-                # faulty_set = set(faulty_subset)
+            for start in range(total_gates - window_size + 1):
+
+                faulty_gate_indices = set(range(start, start + window_size))
 
                 # faulty_output = simulate_MMGF_circuit(
                 #     circuit,
                 #     input_bits,
-                #     faulty_set
+                #     faulty_gate_indices
                 # )
                 fault_count += 1
-                # faulty_outputs.append(1)
+                # faulty_outputs.append(faulty_output)
 
-        return fault_count
-    
-    for _ in range(sample_limit):
-        num_to_drop = random.randint(1, max_missing)
-        faulty_subset = random.sample(range(total_gates), num_to_drop)
-        # faulty_set = set(faulty_subset)
+    # -----------------------------------------------
+    # Large circuit — sampled consecutive windows
+    # -----------------------------------------------
+    else:
 
-        # faulty_output = simulate_MMGF_circuit(
-        #     circuit,
-        #     input_bits,
-        #     faulty_set
-        # )
-        fault_count += 1
-        # faulty_outputs.append(1)
+        seen = set()
+
+        while len(faulty_outputs) < sample_limit:
+
+            # Random window size between 1 and max_missing
+            window_size = random.randint(1, max_missing)
+
+            # Random valid start position for this window size
+            max_start = total_gates - window_size
+            if max_start < 0:
+                continue
+
+            start = random.randint(0, max_start)
+
+            # Deduplicate — skip if this window already seen
+            window_key = (start, window_size)
+            if window_key in seen:
+                continue
+            seen.add(window_key)
+
+            faulty_gate_indices = set(range(start, start + window_size))
+
+            # faulty_output = simulate_MMGF_circuit(
+            #     circuit,
+            #     input_bits,
+            #     faulty_gate_indices
+            # )
+            fault_count += 1
+            # faulty_outputs.append(faulty_output)
+
+            # Stop early if all possible windows are exhausted
+            total_possible = sum(
+                total_gates - w + 1
+                for w in range(1, max_missing + 1)
+            )
+            if len(seen) >= total_possible:
+                break
+
     return fault_count
-
-
 
 def faulty_op_for_PMGF(circuit, input_bits):
 
