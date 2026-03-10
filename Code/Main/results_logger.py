@@ -31,7 +31,7 @@ from filelock import FileLock
 from datetime import timezone
 import pytz
 
-output_path="Code\Main\Output"
+output_path=r"Code\Main\Output"
 
 
 def save_results_to_csv(results, output_dir=output_path):
