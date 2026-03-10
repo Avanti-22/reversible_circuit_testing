@@ -65,7 +65,7 @@ def run_pipeline(path,
                  time_limit_seconds: float = None,
                  skip_minimization=None,
                  verbose=True,
-                 sparse_logging=True,
+                 sparse_logging=False,
                  max_workers: int = None):
     """
     Args:
