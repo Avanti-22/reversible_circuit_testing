@@ -604,7 +604,7 @@ class GeneticAlgorithm:
         self.faultModel = faultModel
         self.threshold = 100.0
         self.population_size = population_size or circuit['No of Lines']
-        self.max_generations = 1
+        self.max_generations = max_generations if max_generations else 20
         self.time_limit_seconds = time_limit_seconds if time_limit_seconds else 300.0
 
         if skip_minimization is None:
