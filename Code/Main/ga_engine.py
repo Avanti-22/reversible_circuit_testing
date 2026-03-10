@@ -673,7 +673,7 @@ class GeneticAlgorithm:
             return random.sample(range(self.max_no_of_TV), test_size)
         else:
             print("Using random sampling with replacement for initial population.")
-            return [random.randrange(0,2 ** 20) for _ in range(test_size)]
+            return [random.randrange(0,2 ** 15) for _ in range(test_size)]
 
     # ── Utilities ────────────────────────────────────────────────────────────
 
