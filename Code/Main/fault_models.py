@@ -474,115 +474,312 @@ def faulty_op_for_CAF(circuit, input_bits):
     return fault_count
 
 
+# def faulty_op_for_BF(circuit, input_bits):
+
+#     faulty_outputs = []
+#     fault_count = 0
+#     total_gates = circuit["No of Gates"]
+#     num_lines = circuit["No of Lines"]
+
+#     for gate_index in range(total_gates):
+
+#         for wire1 in range(num_lines):
+#             for wire2 in range(wire1 + 1, num_lines):
+
+#                 wire_bit_1 = 1 << wire1
+#                 wire_bit_2 = 1 << wire2
+
+#                 # AND-wired
+#                 # faulty_output = simulate_BF_circuit(
+#                 #     circuit,
+#                 #     input_bits,
+#                 #     faulty_gate_index=gate_index,
+#                 #     wire_bit_1=wire_bit_1,
+#                 #     wire_bit_2=wire_bit_2,
+#                 #     mode=0
+#                 # )
+#                 fault_count += 1
+#                 # faulty_outputs.append(1)
+
+#                 # # OR-wired
+#                 # faulty_output = simulate_BF_circuit(
+#                 #     circuit,
+#                 #     input_bits,
+#                 #     faulty_gate_index=gate_index,
+#                 #     wire_bit_1=wire_bit_1,
+#                 #     wire_bit_2=wire_bit_2,
+#                 #     mode=1
+#                 # )
+#                 fault_count += 1
+#                 # faulty_outputs.append(1)
+
+#     return fault_count
+
+# def build_single_bridging_faults(num_lines, adjacency_mode="all"):
+#     """
+#     Build list of single bridging faults based on adjacency mode.
+
+#     adjacency_mode:
+#         "all"       — all wire pairs (original behavior)
+#         "adjacent"  — only physically adjacent wires (wire i and i+1)
+#         "shared"    — only pairs that share at least one wire index
+#                       (i.e., overlapping pairs: (0,1),(1,2) share wire 1)
+    
+#     Each fault is a tuple: (wire_bit_1, wire_bit_2, mode)
+#         mode 0 = AND-bridging
+#         mode 1 = OR-bridging
+#     """
+
+#     single_faults = []
+
+#     if adjacency_mode == "adjacent":
+#         # Only physically neighboring wires: (0,1), (1,2), (2,3), ...
+#         pairs = [(i, i + 1) for i in range(num_lines - 1)]
+
+#     elif adjacency_mode == "shared":
+#         # Pairs that share a wire with another pair
+#         # i.e., consecutive pairs (i, i+1) and (i+1, i+2) share wire i+1
+#         # Here we collect all pairs (i, j) where |i - j| <= 2
+#         # to capture "near-neighbor" sharing
+#         pairs = [
+#             (i, j)
+#             for i in range(num_lines)
+#             for j in range(i + 1, num_lines)
+#             if j - i <= 2
+#         ]
+
+#     else:  # "all"
+#         pairs = [
+#             (i, j)
+#             for i in range(num_lines)
+#             for j in range(i + 1, num_lines)
+#         ]
+
+#     for wire1, wire2 in pairs:
+#         wire_bit_1 = 1 << wire1
+#         wire_bit_2 = 1 << wire2
+#         single_faults.append((wire_bit_1, wire_bit_2, 0))  # AND
+#         single_faults.append((wire_bit_1, wire_bit_2, 1))  # OR
+
+#     return single_faults
+
+
+# def filter_physically_realistic_combinations(fault_subset):
+#     """
+#     Filter out physically unrealistic multi-fault combinations.
+
+#     A combination is considered unrealistic if:
+#     - It mixes AND and OR bridging modes across different wire pairs
+#       simultaneously on the same gate (mixed-mode bridging is physically
+#       unlikely — a bridging fault is typically either a short to GND (AND)
+#       or short to VDD (OR), not both at once on different pairs).
+
+#     Returns True  → combination is realistic, keep it
+#     Returns False → combination is unrealistic, discard it
+#     """
+
+#     modes_present = set(fault[2] for fault in fault_subset)
+
+#     # If both AND (0) and OR (1) modes appear together → unrealistic
+#     if 0 in modes_present and 1 in modes_present:
+#         return False
+
+#     return True
+
+
+# def faulty_op_for_MBF(circuit,
+#                       input_bits,
+#                       max_faults_per_gate=2,
+#                       start_from_single=True,
+#                       adjacency_mode="all",
+#                       filter_mixed_mode=True):
+#     """
+#     Generate MBF faulty outputs.
+
+#     Parameters
+#     ----------
+#     max_faults_per_gate : int
+#         Maximum number of simultaneous bridging faults per gate.
+#         Default is 2 (pairs only). Raise carefully — combinations
+#         grow as C(|single_faults|, k) per gate.
+#         With num_lines=4: 12 single faults → C(12,2)=66 pairs per gate.
+#         With num_lines=8: 56 single faults → C(56,2)=1540 pairs per gate.
+
+#     start_from_single : bool
+#         If True  → set_size starts at 1, so MBF fully subsumes BF.
+#                    Use this when NOT running BF separately.
+#         If False → set_size starts at 2 (skip single faults).
+#                    Use this when BF is always run separately first
+#                    to avoid duplicate computation.
+#         Default: True
+
+#     adjacency_mode : str
+#         Controls which wire pairs are considered for bridging:
+#         "all"      → all C(num_lines, 2) pairs (original, most permissive)
+#         "adjacent" → only physically neighboring wires (i, i+1)
+#                      most restrictive, most physically realistic
+#         "shared"   → pairs within distance 2: (i,j) where j-i <= 2
+#                      middle ground
+
+#     filter_mixed_mode : bool
+#         If True → discard combinations that simultaneously apply both
+#                   AND-bridging and OR-bridging faults on the same gate,
+#                   as this is physically unrealistic.
+#         If False → allow all combinations (original behavior).
+#         Default: True
+#     """
+
+#     faulty_outputs = []
+#     fault_count = 0
+#     total_gates = circuit["No of Gates"]
+#     num_lines = circuit["No of Lines"]
+
+#     # Build single faults based on chosen adjacency model
+#     single_faults = build_single_bridging_faults(num_lines, adjacency_mode)
+
+#     if not single_faults:
+#         return faulty_outputs
+
+#     if max_faults_per_gate is None:
+#         max_faults = len(single_faults)
+#     else:
+#         max_faults = min(max_faults_per_gate, len(single_faults))
+
+#     # Determine starting set size
+#     min_set_size = 1 if start_from_single else 2
+
+#     for gate_index in range(total_gates):
+
+#         for set_size in range(min_set_size, max_faults + 1):
+
+#             for fault_subset in itertools.combinations(single_faults, set_size):
+
+#                 # Skip physically unrealistic mixed-mode combinations
+#                 if filter_mixed_mode and not filter_physically_realistic_combinations(fault_subset):
+#                     continue
+
+#                 # faulty_output = simulate_MBF_circuit(
+#                 #     circuit,
+#                 #     input_bits,
+#                 #     faulty_gate_index=gate_index,
+#                 #     fault_list=fault_subset
+#                 # )
+#                 fault_count += 1
+#                 # faulty_outputs.append(1)
+
+#     return fault_count
+
 def faulty_op_for_BF(circuit, input_bits):
+    """
+    Bridging Fault simulation — adjacent wires only.
+
+    Restricting to physically adjacent wire pairs (i, i+1) only.
+    Reduces fault count from C(n,2)*2 to (n-1)*2 per gate.
+
+    For n=4 lines: was 12 faults/gate → now 6 faults/gate
+    For n=8 lines: was 56 faults/gate → now 14 faults/gate
+    """
 
     faulty_outputs = []
-    fault_count = 0
     total_gates = circuit["No of Gates"]
     num_lines = circuit["No of Lines"]
 
     for gate_index in range(total_gates):
 
-        for wire1 in range(num_lines):
-            for wire2 in range(wire1 + 1, num_lines):
+        # Only adjacent wire pairs: (0,1), (1,2), (2,3), ...
+        for wire1 in range(num_lines - 1):
 
-                wire_bit_1 = 1 << wire1
-                wire_bit_2 = 1 << wire2
+            wire2 = wire1 + 1
+            wire_bit_1 = 1 << wire1
+            wire_bit_2 = 1 << wire2
 
-                # AND-wired
-                # faulty_output = simulate_BF_circuit(
-                #     circuit,
-                #     input_bits,
-                #     faulty_gate_index=gate_index,
-                #     wire_bit_1=wire_bit_1,
-                #     wire_bit_2=wire_bit_2,
-                #     mode=0
-                # )
-                fault_count += 1
-                # faulty_outputs.append(1)
+            # AND-bridging
+            faulty_output = simulate_BF_circuit(
+                circuit,
+                input_bits,
+                faulty_gate_index=gate_index,
+                wire_bit_1=wire_bit_1,
+                wire_bit_2=wire_bit_2,
+                mode=0
+            )
+            faulty_outputs.append(faulty_output)
 
-                # # OR-wired
-                # faulty_output = simulate_BF_circuit(
-                #     circuit,
-                #     input_bits,
-                #     faulty_gate_index=gate_index,
-                #     wire_bit_1=wire_bit_1,
-                #     wire_bit_2=wire_bit_2,
-                #     mode=1
-                # )
-                fault_count += 1
-                # faulty_outputs.append(1)
+            # OR-bridging
+            faulty_output = simulate_BF_circuit(
+                circuit,
+                input_bits,
+                faulty_gate_index=gate_index,
+                wire_bit_1=wire_bit_1,
+                wire_bit_2=wire_bit_2,
+                mode=1
+            )
+            faulty_outputs.append(faulty_output)
 
-    return fault_count
+    return faulty_outputs
 
-def build_single_bridging_faults(num_lines, adjacency_mode="all"):
+
+def build_single_bridging_faults(num_lines):
     """
-    Build list of single bridging faults based on adjacency mode.
+    Build list of single bridging faults — adjacent wires only.
 
-    adjacency_mode:
-        "all"       — all wire pairs (original behavior)
-        "adjacent"  — only physically adjacent wires (wire i and i+1)
-        "shared"    — only pairs that share at least one wire index
-                      (i.e., overlapping pairs: (0,1),(1,2) share wire 1)
-    
-    Each fault is a tuple: (wire_bit_1, wire_bit_2, mode)
+    Restricted to physically neighboring wire pairs (i, i+1).
+    Each fault: (wire_bit_1, wire_bit_2, mode)
         mode 0 = AND-bridging
         mode 1 = OR-bridging
+
+    Count: (num_lines - 1) * 2 faults
     """
 
     single_faults = []
 
-    if adjacency_mode == "adjacent":
-        # Only physically neighboring wires: (0,1), (1,2), (2,3), ...
-        pairs = [(i, i + 1) for i in range(num_lines - 1)]
-
-    elif adjacency_mode == "shared":
-        # Pairs that share a wire with another pair
-        # i.e., consecutive pairs (i, i+1) and (i+1, i+2) share wire i+1
-        # Here we collect all pairs (i, j) where |i - j| <= 2
-        # to capture "near-neighbor" sharing
-        pairs = [
-            (i, j)
-            for i in range(num_lines)
-            for j in range(i + 1, num_lines)
-            if j - i <= 2
-        ]
-
-    else:  # "all"
-        pairs = [
-            (i, j)
-            for i in range(num_lines)
-            for j in range(i + 1, num_lines)
-        ]
-
-    for wire1, wire2 in pairs:
-        wire_bit_1 = 1 << wire1
-        wire_bit_2 = 1 << wire2
+    for i in range(num_lines - 1):
+        wire_bit_1 = 1 << i
+        wire_bit_2 = 1 << (i + 1)
         single_faults.append((wire_bit_1, wire_bit_2, 0))  # AND
         single_faults.append((wire_bit_1, wire_bit_2, 1))  # OR
 
     return single_faults
 
 
-def filter_physically_realistic_combinations(fault_subset):
+def are_non_overlapping(fault_a, fault_b):
     """
-    Filter out physically unrealistic multi-fault combinations.
+    Check if two bridging faults share no wire.
 
-    A combination is considered unrealistic if:
-    - It mixes AND and OR bridging modes across different wire pairs
-      simultaneously on the same gate (mixed-mode bridging is physically
-      unlikely — a bridging fault is typically either a short to GND (AND)
-      or short to VDD (OR), not both at once on different pairs).
+    fault = (wire_bit_1, wire_bit_2, mode)
 
-    Returns True  → combination is realistic, keep it
-    Returns False → combination is unrealistic, discard it
+    If fault_a is (0,1) and fault_b is (1,2), they share wire 1
+    → physically correlated, treat as one larger fault, not two independent ones.
+    Non-overlapping faults are physically independent defects.
     """
 
-    modes_present = set(fault[2] for fault in fault_subset)
+    wires_a = {fault_a[0], fault_a[1]}
+    wires_b = {fault_b[0], fault_b[1]}
 
-    # If both AND (0) and OR (1) modes appear together → unrealistic
-    if 0 in modes_present and 1 in modes_present:
-        return False
+    return wires_a.isdisjoint(wires_b)
+
+
+def filter_MBF_combination(fault_subset, filter_mixed_mode, filter_overlapping):
+    """
+    Apply all active filters to a fault combination.
+
+    filter_mixed_mode   : discard combos mixing AND and OR modes
+    filter_overlapping  : discard combos where any two faults share a wire
+
+    Returns True  → keep this combination
+    Returns False → discard
+    """
+
+    # Mixed-mode filter
+    if filter_mixed_mode:
+        modes = set(f[2] for f in fault_subset)
+        if 0 in modes and 1 in modes:
+            return False
+
+    # Overlapping wire filter
+    if filter_overlapping and len(fault_subset) > 1:
+        for fa, fb in itertools.combinations(fault_subset, 2):
+            if not are_non_overlapping(fa, fb):
+                return False
 
     return True
 
@@ -590,52 +787,50 @@ def filter_physically_realistic_combinations(fault_subset):
 def faulty_op_for_MBF(circuit,
                       input_bits,
                       max_faults_per_gate=2,
-                      start_from_single=True,
-                      adjacency_mode="all",
-                      filter_mixed_mode=True):
+                      start_from_single=False,
+                      filter_mixed_mode=True,
+                      filter_overlapping=True):
     """
-    Generate MBF faulty outputs.
+    Generate MBF faulty outputs — adjacent wires only.
 
     Parameters
     ----------
     max_faults_per_gate : int
-        Maximum number of simultaneous bridging faults per gate.
-        Default is 2 (pairs only). Raise carefully — combinations
-        grow as C(|single_faults|, k) per gate.
-        With num_lines=4: 12 single faults → C(12,2)=66 pairs per gate.
-        With num_lines=8: 56 single faults → C(56,2)=1540 pairs per gate.
+        Maximum simultaneous bridging faults per gate.
+        With adjacent-only and n lines: (n-1)*2 single faults.
+        Default 2.
 
     start_from_single : bool
-        If True  → set_size starts at 1, so MBF fully subsumes BF.
-                   Use this when NOT running BF separately.
-        If False → set_size starts at 2 (skip single faults).
-                   Use this when BF is always run separately first
-                   to avoid duplicate computation.
-        Default: True
-
-    adjacency_mode : str
-        Controls which wire pairs are considered for bridging:
-        "all"      → all C(num_lines, 2) pairs (original, most permissive)
-        "adjacent" → only physically neighboring wires (i, i+1)
-                     most restrictive, most physically realistic
-        "shared"   → pairs within distance 2: (i,j) where j-i <= 2
-                     middle ground
+        If False → set_size starts at 2. Run BF separately for singles.
+                   DEFAULT and RECOMMENDED — avoids duplicating BF entirely.
+        If True  → set_size starts at 1, MBF subsumes BF.
+                   Use only when BF is NOT being run separately.
 
     filter_mixed_mode : bool
-        If True → discard combinations that simultaneously apply both
-                  AND-bridging and OR-bridging faults on the same gate,
-                  as this is physically unrealistic.
-        If False → allow all combinations (original behavior).
-        Default: True
+        Discard combos mixing AND and OR bridging on same gate.
+        Default True.
+
+    filter_overlapping : bool
+        Discard combos where two faults share a wire index.
+        e.g., (wire0,wire1) + (wire1,wire2) share wire1 → discard.
+        This ensures all faults in a combo are physically independent.
+        Default True.
+
+    Fault count example (n=4 lines, 3 gates, max_faults_per_gate=2):
+        Single faults (adjacent): 3 pairs × 2 modes = 6
+        After filter_overlapping on pairs:
+            valid non-overlapping adjacent pairs from (0,1),(1,2),(2,3):
+            (0,1)+(2,3) only → 1 AND-AND pair + 1 OR-OR pair = 2 combos
+        Per gate: 2 multi-fault combos
+        Total MBF (start_from_single=False): 3 gates × 2 = 6 outputs
+        vs original all-pairs unfiltered: much larger
     """
 
     faulty_outputs = []
-    fault_count = 0
     total_gates = circuit["No of Gates"]
     num_lines = circuit["No of Lines"]
 
-    # Build single faults based on chosen adjacency model
-    single_faults = build_single_bridging_faults(num_lines, adjacency_mode)
+    single_faults = build_single_bridging_faults(num_lines)
 
     if not single_faults:
         return faulty_outputs
@@ -645,7 +840,6 @@ def faulty_op_for_MBF(circuit,
     else:
         max_faults = min(max_faults_per_gate, len(single_faults))
 
-    # Determine starting set size
     min_set_size = 1 if start_from_single else 2
 
     for gate_index in range(total_gates):
@@ -654,21 +848,23 @@ def faulty_op_for_MBF(circuit,
 
             for fault_subset in itertools.combinations(single_faults, set_size):
 
-                # Skip physically unrealistic mixed-mode combinations
-                if filter_mixed_mode and not filter_physically_realistic_combinations(fault_subset):
+                if not filter_MBF_combination(
+                    fault_subset,
+                    filter_mixed_mode,
+                    filter_overlapping
+                ):
                     continue
 
-                # faulty_output = simulate_MBF_circuit(
-                #     circuit,
-                #     input_bits,
-                #     faulty_gate_index=gate_index,
-                #     fault_list=fault_subset
-                # )
-                fault_count += 1
-                # faulty_outputs.append(1)
+                faulty_output = simulate_MBF_circuit(
+                    circuit,
+                    input_bits,
+                    faulty_gate_index=gate_index,
+                    fault_list=fault_subset
+                )
 
-    return fault_count
+                faulty_outputs.append(faulty_output)
 
+    return faulty_outputs
 
 def get_all_faulty_outputs(circuit, testVec, fault_model):
 
@@ -710,7 +906,7 @@ def get_all_faulty_outputs(circuit, testVec, fault_model):
     elif fault_model == "MBF":
         return faulty_op_for_MBF(circuit, testVec, 
                                  max_faults_per_gate=2,    # pairs only — raise carefully
-                                 start_from_single=True,   # subsumes BF
-                                 adjacency_mode="all",     # or "adjacent" / "shared"
-                                 filter_mixed_mode=True    # discard AND+OR mixed combos
+                                 start_from_single=False,   # subsumes BF
+                                 filter_mixed_mode=True,
+                                 filter_overlapping=True    # discard AND+OR mixed combos
                                 )
