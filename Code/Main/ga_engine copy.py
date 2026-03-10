@@ -579,104 +579,6 @@ from simulator import *
 
 logger = logging.getLogger(__name__)
 
-_DP_FAULT_LIMIT = 20
-
-def _compress_fault_matrix(fault_matrix, vector_map, fin_pop):
-    """Convert boolean fault_matrix rows → integer bitmasks, one per vector."""
-    n_faults = fault_matrix.shape[1]
-    coverage_masks = []
-    for vec in fin_pop:
-        row  = fault_matrix[vector_map[vec]]
-        mask = 0
-        for bit_idx, detected in enumerate(row):
-            if detected:
-                mask |= (1 << bit_idx)
-        coverage_masks.append(mask)
-    return coverage_masks, n_faults
-
-
-def _dp_set_cover(coverage_masks, n_faults, fin_pop, time_check_fn):
-    """
-    Bitmask DP — finds the OPTIMAL (minimum-size) test set.
-
-    dp[S] = minimum vectors to cover the fault-set encoded by bitmask S.
-    Parent pointers allow full solution reconstruction.
-    """
-    full_mask   = (1 << n_faults) - 1
-    INF         = 10 ** 9
-
-    dp          = [INF] * (full_mask + 1)
-    parent_vec  = [-1]  * (full_mask + 1)   # which vector index was added
-    parent_prev = [-1]  * (full_mask + 1)   # previous DP state
-
-    dp[0] = 0                               # base case
-
-    for state in range(full_mask + 1):
-        if dp[state] == INF:
-            continue                        # unreachable state — skip
-        if time_check_fn():
-            break                           # respect GA global time limit
-
-        for vec_idx, mask in enumerate(coverage_masks):
-            new_state = state | mask
-            if dp[new_state] > dp[state] + 1:
-                dp[new_state]          = dp[state] + 1
-                parent_vec[new_state]  = vec_idx
-                parent_prev[new_state] = state
-
-    # Find best reachable state (prefer full coverage; else most faults covered)
-    if dp[full_mask] < INF:
-        best_state = full_mask
-    else:
-        best_state = max(
-            range(full_mask + 1),
-            key=lambda s: (bin(s).count('1'), -dp[s] if dp[s] < INF else -(10**9))
-        )
-
-    if dp[best_state] == INF:
-        return [], 0.0
-
-    # Reconstruct solution via parent pointers
-    selected_indices = []
-    cur = best_state
-    while cur != 0 and parent_vec[cur] != -1:
-        selected_indices.append(parent_vec[cur])
-        cur = parent_prev[cur]
-
-    selected_vecs = [fin_pop[i] for i in selected_indices]
-    coverage_pct  = (bin(best_state).count('1') / n_faults) * 100
-    return selected_vecs, coverage_pct
-
-
-def _greedy_set_cover(coverage_masks, n_faults, fin_pop, time_check_fn):
-    """
-    Greedy set-cover fallback — O(V × F).
-    Used only when n_faults > _DP_FAULT_LIMIT.
-    Equivalent to the original stage_viii logic.
-    """
-    covered   = 0
-    full_mask = (1 << n_faults) - 1
-    selected  = []
-    remaining = list(range(len(fin_pop)))
-
-    while remaining:
-        if time_check_fn():
-            break
-        best_idx = max(
-            remaining,
-            key=lambda i: bin(coverage_masks[i] & ~covered).count('1')
-        )
-        new_bits = coverage_masks[best_idx] & ~covered
-        if new_bits == 0:
-            break
-        covered |= coverage_masks[best_idx]
-        selected.append(fin_pop[best_idx])
-        remaining.remove(best_idx)
-        if covered == full_mask:
-            break
-
-    coverage_pct = (bin(covered).count('1') / n_faults) * 100
-    return selected, coverage_pct
 
 class GeneticAlgorithm:
 
@@ -929,65 +831,37 @@ class GeneticAlgorithm:
     # For n=14: original tries thousands of combos; greedy picks best in n passes
 
     def stage_viii_minimal_test_set(self, fin_pop, fault_matrix, vector_map):
-        """
-        Stage VIII — Minimal Test Set via Dynamic Programming (+ greedy fallback).
-
-        For F ≤ _DP_FAULT_LIMIT faults the bitmask DP finds the PROVABLY OPTIMAL
-        (minimum-cardinality) test set.  For F > _DP_FAULT_LIMIT the greedy
-        O(V×F) fallback is used and disclosed in the log.
-
-        Dynamic Programming formulation
-        ────────────────────────────────
-        State      : S  — bitmask of faults detected by vectors chosen so far
-        Value      : dp[S] = min vectors needed to reach state S
-        Recurrence : dp[S | cov(v)] = min(dp[S | cov(v)],  dp[S] + 1)
-        Base case  : dp[0] = 0
-        Answer     : reconstruct path to the state with maximum popcount
-
-        Parameters  (unchanged — fully backward-compatible)
-        ──────────
-        fin_pop      : list[int]        — test vectors (integer bitmasks)
-        fault_matrix : np.ndarray[bool] — shape (len(fin_pop), cumulatedFaults)
-        vector_map   : dict[int, int]   — maps vector → row index in fault_matrix
-
-        Returns     (unchanged)
-        ───────
-        selected : list[int]   — minimal / near-minimal set of test vectors
-        coverage : float       — fault coverage % achieved by selected set
-        """
         if not fin_pop or self.cumulatedFaults == 0:
             return [], 0.0
 
-        # Convert boolean matrix rows → integer bitmasks
-        coverage_masks, n_faults = _compress_fault_matrix(
-            fault_matrix, vector_map, fin_pop
-        )
+        covered = np.zeros(self.cumulatedFaults, dtype=bool)
+        selected = []
+        remaining = list(fin_pop)
 
-        # Route: DP (optimal) or greedy (approximate) based on fault count
-        if n_faults <= _DP_FAULT_LIMIT:
-            self._log_detail(
-                f"Stage VIII [DP]     : {n_faults} faults ≤ {_DP_FAULT_LIMIT}"
-                f" → Bitmask DP  (provably optimal)"
-            )
-            selected, coverage = _dp_set_cover(
-                coverage_masks, n_faults, fin_pop, self._check_time_limit
-            )
-            method = f"DP-optimal (F={n_faults})"
-        else:
-            self._log_detail(
-                f"Stage VIII [Greedy] : {n_faults} faults > {_DP_FAULT_LIMIT}"
-                f" → Greedy fallback (approximate)"
-            )
-            selected, coverage = _greedy_set_cover(
-                coverage_masks, n_faults, fin_pop, self._check_time_limit
-            )
-            method = f"Greedy-approx (F={n_faults})"
+        while remaining:
+            if self._check_time_limit():
+                break
 
-        self._log_detail(
-            f"Stage VIII result   : {len(selected)} vector(s),"
-            f" {coverage:.2f}% coverage  [{method}]"
-        )
-        return selected, coverage
+            # Pick vector covering the most NEW faults
+            best_vec = max(
+                remaining,
+                key=lambda v: int(np.sum(fault_matrix[vector_map[v]] & ~covered))
+            )
+
+            new_faults = fault_matrix[vector_map[best_vec]] & ~covered
+            if not np.any(new_faults):
+                break
+
+            covered |= fault_matrix[vector_map[best_vec]]
+            selected.append(best_vec)
+            remaining.remove(best_vec)
+
+            if (int(np.sum(covered)) / self.cumulatedFaults) * 100 >= self.threshold:
+                break
+
+        final_coverage = (int(np.sum(covered)) / self.cumulatedFaults) * 100
+        return selected, final_coverage
+
     # ── Main Run ─────────────────────────────────────────────────────────────
 
     def run(self):
