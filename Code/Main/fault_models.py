@@ -620,9 +620,10 @@ def faulty_op_for_MBF(circuit,
                 # ── DP: all fault-subset variants of gate i share prefix[gate_index]
                 faulty_output = simulate_MBF_circuit(
                     circuit,
-                    prefix[gate_index],          # was: input_bits
+                    prefix[gate_index],
                     faulty_gate_index=gate_index,
-                    fault_list=fault_subset
+                    fault_list=fault_subset,
+                    start_gate=gate_index          # ← skip prefix gates
                 )
                 faulty_outputs.append(faulty_output)
 

@@ -573,15 +573,26 @@ def apply_multiple_bridging_faults(current_bits,
 def simulate_MBF_circuit(circuit,
                          input_bits,
                          faulty_gate_index=None,
-                         fault_list=None):
+                         fault_list=None,
+                         start_gate=None):
     """
-    fault_list = list of (wire_bit_1, wire_bit_2, mode)
+    fault_list : list of (wire_bit_1, wire_bit_2, mode)
+    start_gate : if provided, only simulate gates from this index onward.
+                 Used with DP prefix table — caller passes prefix[gate_index]
+                 as input_bits and start_gate=gate_index so prefix gates
+                 are not re-walked and double-applied.
     """
 
     current_bits = input_bits
     compiled_gates = circuit["Compiled Rep"]
 
-    for gate_index, gate in enumerate(compiled_gates):
+    gate_range = range(
+        start_gate if start_gate is not None else 0,
+        len(compiled_gates)
+    )
+
+    for gate_index in gate_range:
+        gate = compiled_gates[gate_index]
 
         if gate_index == faulty_gate_index and fault_list:
             current_bits = apply_multiple_bridging_faults(
