@@ -315,7 +315,7 @@ def _enumerate_hypotheses(circuit_dict: dict,
                     ctrl_bits.append(1 << pos)
                 tmp >>= 1
                 pos  += 1
-            for r in range(1, len(ctrl_bits)):
+            for r in range(1, len(ctrl_bits) + 1):
                 for subset in combinations(ctrl_bits, r):
                     missing_mask = 0
                     for b in subset:

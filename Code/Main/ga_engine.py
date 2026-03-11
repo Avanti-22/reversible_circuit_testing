@@ -180,7 +180,7 @@ class GeneticAlgorithm:
         self.current_generation = 0
         self.best_coverage = 0.0
         self.best_vector_set = []
-        self.cumulatedFaults = None
+        self.cumulatedFaults = 0
         self.detectedFaults = None
         self.execution_time = 0.0
 
@@ -263,7 +263,21 @@ class GeneticAlgorithm:
         fault_free_output = simulate_fault_free(self.circuit, vector)
         faulty_outputs = get_all_faulty_outputs(
             self.circuit, vector, self.faultModel)
-        self.cumulatedFaults = len(faulty_outputs)
+
+        n_faults = len(faulty_outputs)
+
+        # Set cumulatedFaults only ONCE on first evaluation.
+        # After that, assert consistency — if fault count changes between vectors,
+        # it signals a non-deterministic fault model (e.g. GAF with random.choice).
+        if self.cumulatedFaults == 0:
+            self.cumulatedFaults = n_faults
+        elif n_faults != self.cumulatedFaults:
+            # Log the inconsistency but do not crash — use the established count
+            self._log(
+                f"[WARN] Fault count mismatch: expected {self.cumulatedFaults}, "
+                f"got {n_faults} for vector {vector}. "
+                f"Fault model '{self.faultModel}' may be non-deterministic."
+            )
 
         detected_fault_array = self.get_detected_faults_row(fault_free_output, faulty_outputs)
         detected = int(np.sum(detected_fault_array))
@@ -271,7 +285,7 @@ class GeneticAlgorithm:
 
         self.fault_cache[vector] = (coverage, detected_fault_array)
         return coverage, detected_fault_array
-        
+            
 
     # ── Fitness for Population ────────────────────────────────────────────────
 

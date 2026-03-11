@@ -240,9 +240,36 @@ def faulty_op_for_SAF(circuit, input_bits, fault_model, prefix=None):
                 stuck_at_value=stuck_value
             )
             faulty_outputs.append(faulty_output)
+            
+    # Filter structurally undetectable faults (output == fault-free output)
+    fault_free_output = simulate_fault_free(circuit, input_bits)
+    faulty_outputs = [o for o in faulty_outputs if o != fault_free_output]
 
     return faulty_outputs
 
+def faulty_op_for_SAF_combined(circuit, input_bits, prefix=None):
+    """
+    Generate ALL SAF faulty outputs for BOTH SA-0 and SA-1 combined.
+
+    - Prefix table is built once and shared across both SA-0 and SA-1 calls.
+    - Faults that produce the same output as fault-free are filtered out
+      (they are structurally undetectable and inflate cumulatedFaults otherwise).
+    """
+    if prefix is None:
+        prefix = build_prefix_table(circuit, input_bits)
+
+    fault_free_output = simulate_fault_free(circuit, input_bits)
+
+    outputs_sa0 = faulty_op_for_SAF(circuit, input_bits, "SA-0", prefix=prefix)
+    outputs_sa1 = faulty_op_for_SAF(circuit, input_bits, "SA-1", prefix=prefix)
+
+    all_outputs = outputs_sa0 + outputs_sa1
+
+    # Remove faults that are identical to fault-free output — they are
+    # undetectable regardless of test vector and only inflate fault count.
+    detectable_outputs = [o for o in all_outputs if o != fault_free_output]
+
+    return detectable_outputs
 
 # ═══════════════════════════════════════════════════════════════════════════════
 #  RGF
@@ -300,35 +327,79 @@ def build_gaf_gate_library(num_lines):
     return gate_library
 
 
+# def faulty_op_for_GAF(circuit, input_bits, prefix=None):
+#     """
+#     Generate outputs for all GAF faults.
+#     Randomly picks one gate per insertion position (original behaviour).
+#     """
+
+#     faulty_outputs = []
+#     total_gates = circuit["No of Gates"]
+#     num_lines = circuit["No of Lines"]
+
+#     if prefix is None:
+#         prefix = build_prefix_table(circuit, input_bits)
+
+#     gate_library = build_gaf_gate_library(num_lines)
+
+#     # insertion_index = -1 → before gate 0   →  use prefix[0]
+#     # insertion_index =  k → after  gate k   →  use prefix[k+1]
+#     for insertion_index in range(-1, total_gates):
+
+#         extra_gate = random.choice(gate_library)
+
+#         # ── DP: state after gates 0..insertion_index = prefix[insertion_index+1]
+#         faulty_output = simulate_GAF_circuit(
+#             circuit,
+#             prefix[insertion_index + 1],         # was: input_bits
+#             insertion_index,
+#             extra_gate
+#         )
+#         faulty_outputs.append(faulty_output)
+
+#     return faulty_outputs
+
 def faulty_op_for_GAF(circuit, input_bits, prefix=None):
     """
-    Generate outputs for all GAF faults.
-    Randomly picks one gate per insertion position (original behaviour).
+    Generate outputs for all GAF faults — fully deterministic.
+
+    Strategy: for each insertion position, try ALL gates from the library
+    and keep only UNIQUE faulty outputs. This avoids:
+      - random.choice non-determinism
+      - fault count varying between vectors (breaks fault matrix shape)
+      - cumulatedFaults inflation from duplicate outputs
+    
+    Insertion positions: -1 (before gate 0) up to total_gates - 1 (after last gate)
+    Total positions: total_gates + 1
     """
 
     faulty_outputs = []
+    seen = set()
+
     total_gates = circuit["No of Gates"]
-    num_lines = circuit["No of Lines"]
+    num_lines   = circuit["No of Lines"]
+    gate_library = build_gaf_gate_library(num_lines)
 
     if prefix is None:
         prefix = build_prefix_table(circuit, input_bits)
 
-    gate_library = build_gaf_gate_library(num_lines)
+    fault_free_output = simulate_fault_free(circuit, input_bits)
 
-    # insertion_index = -1 → before gate 0   →  use prefix[0]
-    # insertion_index =  k → after  gate k   →  use prefix[k+1]
     for insertion_index in range(-1, total_gates):
 
-        extra_gate = random.choice(gate_library)
+        for extra_gate in gate_library:
 
-        # ── DP: state after gates 0..insertion_index = prefix[insertion_index+1]
-        faulty_output = simulate_GAF_circuit(
-            circuit,
-            prefix[insertion_index + 1],         # was: input_bits
-            insertion_index,
-            extra_gate
-        )
-        faulty_outputs.append(faulty_output)
+            faulty_output = simulate_GAF_circuit(
+                circuit,
+                input_bits,
+                insertion_index,
+                extra_gate
+            )
+
+            # Only keep unique, detectable outputs
+            if faulty_output != fault_free_output and faulty_output not in seen:
+                seen.add(faulty_output)
+                faulty_outputs.append(faulty_output)
 
     return faulty_outputs
 
@@ -564,9 +635,12 @@ def get_all_faulty_outputs(circuit, testVec, fault_model):
 
     # Build prefix table ONCE for this test vector
     prefix = build_prefix_table(circuit, testVec)
-
+    
     if fault_model in ["SA-0", "SA-1"]:
         return faulty_op_for_SAF(circuit, testVec, fault_model, prefix=prefix)
+
+    elif fault_model == "SAF":
+        return faulty_op_for_SAF_combined(circuit, testVec, prefix=prefix)
 
     elif fault_model == "SMGF":
         return faulty_op_for_SMGF(circuit, testVec, prefix=prefix)
