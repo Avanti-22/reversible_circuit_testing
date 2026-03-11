@@ -181,11 +181,14 @@ def faulty_op_for_PMGF(circuit, input_bits, prefix=None):
 
                 # ── DP: start from state before gate_index ────────────────
                 # All mask variants of this gate share the same prefix[gate_index]
+                # ── DP: start from state before gate_index ────────────────
+                # All mask variants of this gate share the same prefix[gate_index]
                 faulty_output = simulate_PMGF_circuit(
                     circuit,
-                    prefix[gate_index],          # was: input_bits
+                    prefix[gate_index],
                     faulty_gate_index=gate_index,
-                    missing_control_bits_mask=missing_mask
+                    missing_control_bits_mask=missing_mask,
+                    start_gate=gate_index          # ← skip prefix gates
                 )
                 faulty_outputs.append(faulty_output)
 
@@ -234,10 +237,11 @@ def faulty_op_for_SAF(circuit, input_bits, fault_model, prefix=None):
             # ── DP: start from state before gate_index ────────────────────
             faulty_output = simulate_SAF_circuit(
                 circuit,
-                prefix[gate_index],              # was: input_bits
+                prefix[gate_index],
                 faulty_gate_index=gate_index,
                 faulty_wire_bit=wire_bit,
-                stuck_at_value=stuck_value
+                stuck_at_value=stuck_value,
+                start_gate=gate_index          # ← NEW: skip prefix gates
             )
             faulty_outputs.append(faulty_output)
             
@@ -293,9 +297,10 @@ def faulty_op_for_RGF(circuit, input_bits, mode="Odd", prefix=None):
         # ── DP: start from state before gate_index ────────────────────────
         faulty_output = simulate_RGF_circuit(
             circuit,
-            prefix[gate_index],                  # was: input_bits
+            prefix[gate_index],
             faulty_gate_index=gate_index,
-            repeat_mode=mode
+            repeat_mode=mode,
+            start_gate=gate_index          # ← skip prefix gates
         )
         faulty_outputs.append(faulty_output)
 
@@ -463,9 +468,10 @@ def faulty_op_for_CAF(circuit, input_bits, prefix=None):
             # ── DP: all extra-wire variants of gate i share prefix[gate_index]
             faulty_output = simulate_CAF_circuit(
                 circuit,
-                prefix[gate_index],              # was: input_bits
+                prefix[gate_index],
                 faulty_gate_index=gate_index,
-                extra_control_bit=extra_control_bit
+                extra_control_bit=extra_control_bit,
+                start_gate=gate_index          # ← skip prefix gates
             )
             faulty_outputs.append(faulty_output)
 
@@ -502,22 +508,24 @@ def faulty_op_for_BF(circuit, input_bits, prefix=None):
             # AND-bridging
             faulty_output = simulate_BF_circuit(
                 circuit,
-                prefix[gate_index],              # was: input_bits
+                prefix[gate_index],
                 faulty_gate_index=gate_index,
                 wire_bit_1=wire_bit_1,
                 wire_bit_2=wire_bit_2,
-                mode=0
+                mode=0,
+                start_gate=gate_index          # ← skip prefix gates
             )
             faulty_outputs.append(faulty_output)
 
             # OR-bridging
             faulty_output = simulate_BF_circuit(
                 circuit,
-                prefix[gate_index],              # was: input_bits
+                prefix[gate_index],
                 faulty_gate_index=gate_index,
                 wire_bit_1=wire_bit_1,
                 wire_bit_2=wire_bit_2,
-                mode=1
+                mode=1,
+                start_gate=gate_index          # ← skip prefix gates
             )
             faulty_outputs.append(faulty_output)
 

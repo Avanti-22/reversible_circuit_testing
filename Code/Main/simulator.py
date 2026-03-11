@@ -189,20 +189,30 @@ def simulate_MMGF_circuit(circuit, input_bits, faulty_gate_indices=None):
 
     return current_bits
 
-def simulate_PMGF_circuit(circuit, input_bits,
+def simulate_PMGF_circuit(circuit,
+                          input_bits,
                           faulty_gate_index=None,
-                          missing_control_bits_mask=None):
+                          missing_control_bits_mask=None,
+                          start_gate=None):
     """
-    Simulate circuit under PMGF fault.
-
-    faulty_gate_index       : gate level where PMGF occurs
+    faulty_gate_index         : gate level where PMGF occurs
     missing_control_bits_mask : bitmask of control bits that are missing
+    start_gate                : if provided, only simulate gates from this index onward.
+                                Used with DP prefix table — caller passes prefix[gate_index]
+                                as input_bits and start_gate=gate_index so prefix gates
+                                are not re-walked and double-applied.
     """
 
     current_bits = input_bits
     compiled_gates = circuit["Compiled Rep"]
 
-    for gate_index, gate in enumerate(compiled_gates):
+    gate_range = range(
+        start_gate if start_gate is not None else 0,
+        len(compiled_gates)
+    )
+
+    for gate_index in gate_range:
+        gate = compiled_gates[gate_index]
 
         gate_type = gate[0]
 
@@ -222,12 +232,14 @@ def simulate_PMGF_circuit(circuit, input_bits,
             original_control_bits = gate[1]
             target_bit = gate[2]
 
-            # Remove missing controls
             effective_control_bits = (
                 original_control_bits & ~missing_control_bits_mask
             )
 
-            if (current_bits & effective_control_bits) == effective_control_bits:
+            # effective_control_bits == 0 means ALL controls removed
+            # gate fires unconditionally → always flip target
+            if effective_control_bits == 0 or \
+               (current_bits & effective_control_bits) == effective_control_bits:
                 current_bits ^= target_bit
 
         elif gate_type == "FREDKIN":
@@ -240,7 +252,8 @@ def simulate_PMGF_circuit(circuit, input_bits,
                 original_control_bits & ~missing_control_bits_mask
             )
 
-            if (current_bits & effective_control_bits) == effective_control_bits:
+            if effective_control_bits == 0 or \
+               (current_bits & effective_control_bits) == effective_control_bits:
 
                 bit1 = current_bits & swap_bit_1
                 bit2 = current_bits & swap_bit_2
@@ -260,11 +273,10 @@ def simulate_PMGF_circuit(circuit, input_bits,
             )
 
             control_active = (
-                (current_bits & effective_control_bits)
-                == effective_control_bits
+                effective_control_bits == 0 or
+                (current_bits & effective_control_bits) == effective_control_bits
             )
 
-            # first XOR
             current_bits ^= xor_bit_pair_mask
 
             if control_active:
@@ -277,34 +289,29 @@ def simulate_SAF_circuit(circuit,
                          input_bits,
                          faulty_gate_index=None,
                          faulty_wire_bit=None,
-                         stuck_at_value=None):
+                         stuck_at_value=None,
+                         start_gate=None):        # ← NEW
     """
-    Simulate circuit under SAF.
-
-    faulty_gate_index : gate level where SAF occurs
-    faulty_wire_bit   : single bit (e.g. 1 << wire_position)
-    stuck_at_value    : 0 or 1
+    start_gate : if provided, only simulate gates from this index onward.
+                 Used with DP prefix table — caller passes prefix[gate_index]
+                 and start_gate=gate_index so prefix gates are not re-walked.
     """
 
     current_bits = input_bits
     compiled_gates = circuit["Compiled Rep"]
 
-    for gate_index, gate in enumerate(compiled_gates):
+    gate_range = range(start_gate if start_gate is not None else 0,
+                       len(compiled_gates))       # ← only suffix
 
-        # -------------------------------------------------
-        # Apply SAF before executing the faulty gate
-        # -------------------------------------------------
+    for gate_index in gate_range:
+        gate = compiled_gates[gate_index]
+
         if gate_index == faulty_gate_index and faulty_wire_bit is not None:
-
             if stuck_at_value == 0:
-                # Force bit to 0
                 current_bits &= ~faulty_wire_bit
-
             elif stuck_at_value == 1:
-                # Force bit to 1
                 current_bits |= faulty_wire_bit
 
-        # Apply gate normally
         current_bits = apply_gate(current_bits, gate)
 
     return current_bits
@@ -312,27 +319,38 @@ def simulate_SAF_circuit(circuit,
 def simulate_RGF_circuit(circuit,
                          input_bits,
                          faulty_gate_index=None,
-                         repeat_mode="Odd"):
+                         repeat_mode="Odd",
+                         start_gate=None):
     """
     Simulate circuit under Repeated Gate Fault (RGF).
 
     faulty_gate_index : gate to repeat
     repeat_mode       : "Odd" or "Even"
+    start_gate        : if provided, only simulate gates from this index onward.
+                        Used with DP prefix table — caller passes prefix[gate_index]
+                        as input_bits and start_gate=gate_index so prefix gates
+                        are not re-walked and double-applied.
     """
 
     current_bits = input_bits
     compiled_gates = circuit["Compiled Rep"]
 
-    for gate_index, gate in enumerate(compiled_gates):
+    gate_range = range(
+        start_gate if start_gate is not None else 0,
+        len(compiled_gates)
+    )
+
+    for gate_index in gate_range:
+        gate = compiled_gates[gate_index]
 
         # Apply gate normally
         current_bits = apply_gate(current_bits, gate)
 
-        # If this is the faulty gate
+        # If this is the faulty gate, repeat it
         if gate_index == faulty_gate_index:
 
             if repeat_mode == "Odd":
-                # Apply once more
+                # Apply once more (total 2 applications)
                 current_bits = apply_gate(current_bits, gate)
 
             elif repeat_mode == "Even":
@@ -367,52 +385,59 @@ def simulate_GAF_circuit(circuit,
 def simulate_CAF_circuit(circuit,
                          input_bits,
                          faulty_gate_index=None,
-                         extra_control_bit=None):
+                         extra_control_bit=None,
+                         start_gate=None):
     """
     Simulate circuit under Control Addition Fault (CAF).
 
-    faulty_gate_index : gate where control is added
-    extra_control_bit : bit (1 << wire_position)
+    faulty_gate_index : gate where extra control is added
+    extra_control_bit : the extra control wire being added as a bitmask
+    start_gate        : if provided, only simulate gates from this index onward.
+                        Used with DP prefix table — caller passes prefix[gate_index]
+                        as input_bits and start_gate=gate_index so prefix gates
+                        are not re-walked and double-applied.
     """
 
     current_bits = input_bits
     compiled_gates = circuit["Compiled Rep"]
 
-    for gate_index, gate in enumerate(compiled_gates):
+    gate_range = range(
+        start_gate if start_gate is not None else 0,
+        len(compiled_gates)
+    )
 
-        gate_type = gate[0]
+    for gate_index in gate_range:
+        gate = compiled_gates[gate_index]
 
         # -------------------------------------------------
-        # If not faulty gate → apply normally
+        # Normal gate — not the faulty one
         # -------------------------------------------------
         if gate_index != faulty_gate_index:
             current_bits = apply_gate(current_bits, gate)
             continue
 
         # -------------------------------------------------
-        # Faulty Gate → add extra control
+        # Faulty gate — extra control bit added
         # -------------------------------------------------
+        gate_type = gate[0]
 
         if gate_type == "TOFFOLI":
-
-            original_control_bits = gate[1]
+            control_bits = gate[1]
             target_bit = gate[2]
 
-            new_control_bits = original_control_bits | extra_control_bit
+            new_control_bits = control_bits | extra_control_bit
 
             if (current_bits & new_control_bits) == new_control_bits:
                 current_bits ^= target_bit
 
         elif gate_type == "FREDKIN":
-
-            original_control_bits = gate[1]
+            control_bits = gate[1]
             swap_bit_1 = gate[2]
             swap_bit_2 = gate[3]
 
-            new_control_bits = original_control_bits | extra_control_bit
+            new_control_bits = control_bits | extra_control_bit
 
             if (current_bits & new_control_bits) == new_control_bits:
-
                 bit1 = current_bits & swap_bit_1
                 bit2 = current_bits & swap_bit_2
 
@@ -421,19 +446,17 @@ def simulate_CAF_circuit(circuit,
                     current_bits ^= swap_bit_2
 
         elif gate_type == "PERES":
-
-            original_control_bits = gate[1]
-            xor_bit_pair_mask = gate[2]
+            control_bits = gate[1]
+            xor_bit_mask = gate[2]
             target_bit = gate[3]
 
-            new_control_bits = original_control_bits | extra_control_bit
+            new_control_bits = control_bits | extra_control_bit
 
             control_active = (
-                (current_bits & new_control_bits)
-                == new_control_bits
+                (current_bits & new_control_bits) == new_control_bits
             )
 
-            current_bits ^= xor_bit_pair_mask
+            current_bits ^= xor_bit_mask
 
             if control_active:
                 current_bits ^= target_bit
@@ -474,24 +497,56 @@ def simulate_BF_circuit(circuit,
                         faulty_gate_index=None,
                         wire_bit_1=None,
                         wire_bit_2=None,
-                        mode=None):
+                        mode=0,
+                        start_gate=None):
     """
-    Bridging fault simulation using compiled circuit.
+    Simulate circuit under Bridging Fault (BF).
+
+    faulty_gate_index : gate before which bridging is applied
+    wire_bit_1        : first wire bitmask
+    wire_bit_2        : second wire bitmask
+    mode              : 0 = AND bridging, 1 = OR bridging
+    start_gate        : if provided, only simulate gates from this index onward.
+                        Used with DP prefix table — caller passes prefix[gate_index]
+                        as input_bits and start_gate=gate_index so prefix gates
+                        are not re-walked and double-applied.
     """
 
     current_bits = input_bits
     compiled_gates = circuit["Compiled Rep"]
 
-    for gate_index, gate in enumerate(compiled_gates):
+    gate_range = range(
+        start_gate if start_gate is not None else 0,
+        len(compiled_gates)
+    )
 
-        # Apply bridging BEFORE this gate
+    for gate_index in gate_range:
+        gate = compiled_gates[gate_index]
+
+        # -------------------------------------------------
+        # Apply bridging fault BEFORE executing faulty gate
+        # -------------------------------------------------
         if gate_index == faulty_gate_index:
-            current_bits = apply_bridging_fault(
-                current_bits,
-                wire_bit_1,
-                wire_bit_2,
-                mode
-            )
+
+            if mode == 0:
+                # AND bridging — both wires take AND of their values
+                and_val = (current_bits & wire_bit_1) and (current_bits & wire_bit_2)
+                if and_val:
+                    current_bits |= wire_bit_1
+                    current_bits |= wire_bit_2
+                else:
+                    current_bits &= ~wire_bit_1
+                    current_bits &= ~wire_bit_2
+
+            elif mode == 1:
+                # OR bridging — both wires take OR of their values
+                or_val = (current_bits & wire_bit_1) | (current_bits & wire_bit_2)
+                if or_val:
+                    current_bits |= wire_bit_1
+                    current_bits |= wire_bit_2
+                else:
+                    current_bits &= ~wire_bit_1
+                    current_bits &= ~wire_bit_2
 
         current_bits = apply_gate(current_bits, gate)
 
