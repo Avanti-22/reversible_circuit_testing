@@ -8,7 +8,7 @@ import random
 from simulator import *
 import logging
 logger = logging.getLogger(__name__)
-
+from fault_models import build_gaf_gate_library
 import os
 
 import gc
@@ -171,7 +171,7 @@ class GeneticAlgorithm:
         self.population_size = population_size or circuit['No of Lines']
         self.max_generations = max_generations if max_generations else 20
         self.time_limit_seconds = time_limit_seconds if time_limit_seconds else 300.0
-
+        self.gaf_insertion_gates = None
         if skip_minimization is None:
             self.skip_minimization = circuit["No of Lines"] >= 12
         else:
@@ -226,7 +226,14 @@ class GeneticAlgorithm:
         self.n = self.circuit["No of Lines"]
         self.N = self.circuit["No of Gates"]
         self.max_no_of_TV = 2 ** self.n if self.n < 20 else 2 ** 20  # cap at 1M for sanity
-
+        if self.faultModel == "GAF":
+            gate_library = build_gaf_gate_library(self.circuit["No of Lines"])
+            total_gates  = self.circuit["No of Gates"]
+            self.gaf_insertion_gates = {
+                k: random.choice(gate_library)
+                for k in range(-1, total_gates)
+            }
+            self._log(f"GAF: pre-selected {len(self.gaf_insertion_gates)} insertion gates (fixed for this run)")
     # ── Stage II ─────────────────────────────────────────────────────────────
 
     def stage_ii_TV_selection(self, test_size=None):
@@ -262,7 +269,9 @@ class GeneticAlgorithm:
 
         fault_free_output = simulate_fault_free(self.circuit, vector)
         faulty_outputs = get_all_faulty_outputs(
-            self.circuit, vector, self.faultModel)
+            self.circuit, vector, self.faultModel,
+            gaf_insertion_gates=self.gaf_insertion_gates   # None for non-GAF models
+        )
 
         n_faults = len(faulty_outputs)
 
