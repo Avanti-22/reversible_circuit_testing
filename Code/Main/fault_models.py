@@ -309,10 +309,6 @@ def faulty_op_for_RGF(circuit, input_bits, mode="Odd", prefix=None):
         )
         faulty_outputs.append(faulty_output)
 
-    # FIX: filter structurally undetectable faults
-    fault_free_output = simulate_fault_free(circuit, input_bits)
-    faulty_outputs = [o for o in faulty_outputs if o != fault_free_output]
-
     return faulty_outputs
 
 
