@@ -4,7 +4,7 @@ from posixpath import basename
 from batch_parsing_functions import *
 from ga_engine import *
 from results_logger import *
-
+from directed_init_patch import*
 import os
 from os.path import basename
 
@@ -22,7 +22,7 @@ def get_files_from_path(path):
         raise ValueError(f"Invalid path: {path}")
 
 
-def _run_single_fault_model(circuit_dict, fault_model, filepath,
+def _run_single_fault_model(circuit_dict, ga_approach, fault_model, filepath,
                              population_size, max_generations,
                              time_limit_seconds, skip_minimization,
                              verbose, sparse_logging):
@@ -30,18 +30,21 @@ def _run_single_fault_model(circuit_dict, fault_model, filepath,
     try:
         if verbose:
             print(f"  [{basename(filepath)}] Starting: {fault_model}")
+            
+        if ga_approach == "Directed":
+            patch_ga_with_directed_init(GeneticAlgorithm)   # one-time, at import
 
         GA_object = GeneticAlgorithm(
-            circuit_dict,
-            faultModel=fault_model,
-            verbose=verbose,
-            sparse_logging=sparse_logging,
-            population_size=population_size,
-            max_generations=max_generations,
-            time_limit_seconds=time_limit_seconds,
-            skip_minimization=skip_minimization
-        )
-
+                circuit_dict,
+                faultModel=fault_model,
+                verbose=verbose,
+                sparse_logging=sparse_logging,
+                population_size=population_size,
+                max_generations=max_generations,
+                time_limit_seconds=time_limit_seconds,
+                skip_minimization=skip_minimization
+            )
+        
         results = GA_object.run()
         save_results_to_csv(results)
 
@@ -55,6 +58,7 @@ def _run_single_fault_model(circuit_dict, fault_model, filepath,
 
 
 def run_pipeline(path,
+                 ga_approach,
                  fault_models: list,
                  population_size: int = None,
                  max_generations: int = 20,
@@ -70,6 +74,7 @@ def run_pipeline(path,
 
     if verbose:
         print(f"Found {len(real_files)} file(s) to process.")
+        print(f"GA Approach: {ga_approach}")
         print(f"Fault models: {fault_models}\n")
 
     for i, filepath in enumerate(real_files, 1):
@@ -82,7 +87,7 @@ def run_pipeline(path,
         # Inner parallelism (population vectors) handles speedup for large circuits
         for fault_model in fault_models:
             fault_model, error = _run_single_fault_model(
-                circuit_dict, fault_model, filepath,
+                circuit_dict,ga_approach, fault_model, filepath,
                 population_size, max_generations,
                 time_limit_seconds, skip_minimization,
                 verbose, sparse_logging

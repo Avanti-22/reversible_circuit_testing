@@ -224,7 +224,7 @@ def patch_ga_with_directed_init(ga_class):
             max_no_of_TV = self.max_no_of_TV,
             test_size    = test_size,
         )
-
+        self.approach = "Directed"
         if self.verbose and not self.sparse_logging:
             print(f"[Directed Init] Generated {len(pop)} vectors "
                   f"(circuit: {self.circuit.get('Circuit Name', '?')}, "

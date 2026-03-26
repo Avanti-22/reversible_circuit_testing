@@ -166,6 +166,7 @@ class GeneticAlgorithm:
         self.verbose = verbose
         self.sparse_logging = sparse_logging
         self.circuit = circuit
+        self.approach = "Random"
         self.faultModel = faultModel
         self.threshold = 100.0
         self.population_size = population_size or circuit['No of Lines']
@@ -664,13 +665,14 @@ class GeneticAlgorithm:
             "No of Lines":          self.circuit["No of Lines"],
             "No of Gates":          self.circuit["No of Gates"],
             "Fault Model":          self.faultModel,
-            "Actual Generations":   self.current_generation + 1,
             "Total Faults":         self.cumulatedFaults,
+            "GA Approach":          self.approach,
             "Detected Faults":      int(np.sum(self.detectedFaults)) if self.detectedFaults is not None else 0,
             "Fault Coverage":       self.best_coverage,
-            "Best Vector Set":      self.best_vector_set,
             "Test Set Size":        len(self.best_vector_set),
+            "Best Vector Set":      self.best_vector_set,
             "Execution Time":       round(self.execution_time, 4),
+            "Actual Generations":   self.current_generation + 1,
             "Time Limit Exceeded":  self._time_limit_exceeded,
             "Minimization Skipped": self.skip_minimization,
         }
