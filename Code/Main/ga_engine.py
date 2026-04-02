@@ -686,109 +686,109 @@ class GeneticAlgorithm:
 
     #     return self.save_results()
     def run(self):
-    MAX_RUNS = 3
-    final_result = None
-
-    for attempt in range(1, MAX_RUNS + 1):
-
-        # Reset state for each run
-        self.current_generation = 0
-        self.best_coverage = 0.0
-        self.best_vector_set = []
-        self.cumulatedFaults = 0
-        self.detectedFaults = None
-        self.execution_time = 0.0
-        self._time_limit_exceeded = False
-        self.fault_cache.clear()
-
-        self._log(f"\n===== GA RUN STARTED (Attempt {attempt}) =====")
-        self._start_timer()
-
-        # ── Stage I ─────────────────────────────────────────────
-        self.stage_i_input_Parameter_extratcion()
-        self._log(f"Population size: {self.n} | Gates: {self.N} | Max TV: {self.max_no_of_TV}")
-
-        # ── Stage II ────────────────────────────────────────────
-        init_population = self.stage_ii_TV_selection()
-
-        # ── MAIN GA LOOP ────────────────────────────────────────
-        for gen in range(self.max_generations):
-
-            if self._check_time_limit():
-                self._log("Terminated: Time limit reached.")
-                break
-
-            self.current_generation = gen
-
-            # Fitness
-            init_fitnesses, init_detected_matrix, init_vector_map, singleton_hit = \
-                self.compute_fitness_for_population(init_population)
-
-            if singleton_hit:
-                self.best_coverage = 100.0
-                self.best_vector_set = [list(init_vector_map.keys())[-1]]
-                self.detectedFaults = init_detected_matrix[-1]
-                break
-
-            if self._time_limit_exceeded or not init_fitnesses:
-                break
-
-            # Selection → Crossover → Mutation → New Population
-            parents = self.stage_iv_roulette_wheel_selection(init_fitnesses, init_population)
-            children = self.stage_v_crossover(parents)
-            mutated_children = self.stage_vi_mutation(children)
-
-            fin_sorted_population, fin_sorted_fitnesses, \
-            fin_detected_matrix, fin_vector_map = \
-                self.stage_vii_test_population_generation(init_population, mutated_children)
-
-            combined_detected_list = np.any(fin_detected_matrix, axis=0)
-            detected_faults = int(np.sum(combined_detected_list))
-            fault_coverage = (detected_faults / self.cumulatedFaults) * 100
-
-            # Minimization
-            if not self.skip_minimization:
-                min_set, min_cov = self.stage_viii_minimal_test_set(
-                    fin_sorted_population, fin_detected_matrix, fin_vector_map
-                )
-                if min_cov >= fault_coverage:
-                    fault_coverage = min_cov
-                    test_vectors = min_set
+        MAX_RUNS = 3
+        final_result = None
+    
+        for attempt in range(1, MAX_RUNS + 1):
+    
+            # Reset state for each run
+            self.current_generation = 0
+            self.best_coverage = 0.0
+            self.best_vector_set = []
+            self.cumulatedFaults = 0
+            self.detectedFaults = None
+            self.execution_time = 0.0
+            self._time_limit_exceeded = False
+            self.fault_cache.clear()
+    
+            self._log(f"\n===== GA RUN STARTED (Attempt {attempt}) =====")
+            self._start_timer()
+    
+            # ── Stage I ─────────────────────────────────────────────
+            self.stage_i_input_Parameter_extratcion()
+            self._log(f"Population size: {self.n} | Gates: {self.N} | Max TV: {self.max_no_of_TV}")
+    
+            # ── Stage II ────────────────────────────────────────────
+            init_population = self.stage_ii_TV_selection()
+    
+            # ── MAIN GA LOOP ────────────────────────────────────────
+            for gen in range(self.max_generations):
+    
+                if self._check_time_limit():
+                    self._log("Terminated: Time limit reached.")
+                    break
+    
+                self.current_generation = gen
+    
+                # Fitness
+                init_fitnesses, init_detected_matrix, init_vector_map, singleton_hit = \
+                    self.compute_fitness_for_population(init_population)
+    
+                if singleton_hit:
+                    self.best_coverage = 100.0
+                    self.best_vector_set = [list(init_vector_map.keys())[-1]]
+                    self.detectedFaults = init_detected_matrix[-1]
+                    break
+    
+                if self._time_limit_exceeded or not init_fitnesses:
+                    break
+    
+                # Selection → Crossover → Mutation → New Population
+                parents = self.stage_iv_roulette_wheel_selection(init_fitnesses, init_population)
+                children = self.stage_v_crossover(parents)
+                mutated_children = self.stage_vi_mutation(children)
+    
+                fin_sorted_population, fin_sorted_fitnesses, \
+                fin_detected_matrix, fin_vector_map = \
+                    self.stage_vii_test_population_generation(init_population, mutated_children)
+    
+                combined_detected_list = np.any(fin_detected_matrix, axis=0)
+                detected_faults = int(np.sum(combined_detected_list))
+                fault_coverage = (detected_faults / self.cumulatedFaults) * 100
+    
+                # Minimization
+                if not self.skip_minimization:
+                    min_set, min_cov = self.stage_viii_minimal_test_set(
+                        fin_sorted_population, fin_detected_matrix, fin_vector_map
+                    )
+                    if min_cov >= fault_coverage:
+                        fault_coverage = min_cov
+                        test_vectors = min_set
+                    else:
+                        test_vectors = fin_sorted_population
                 else:
                     test_vectors = fin_sorted_population
-            else:
-                test_vectors = fin_sorted_population
-
-            # Best update
-            if fault_coverage > self.best_coverage:
-                self.best_coverage = fault_coverage
-                self.best_vector_set = test_vectors
-                self.detectedFaults = combined_detected_list
-
-            if fault_coverage >= self.threshold:
+    
+                # Best update
+                if fault_coverage > self.best_coverage:
+                    self.best_coverage = fault_coverage
+                    self.best_vector_set = test_vectors
+                    self.detectedFaults = combined_detected_list
+    
+                if fault_coverage >= self.threshold:
+                    break
+    
+                init_population = test_vectors[:self.population_size]
+    
+                gc.collect()
+    
+            self._log(f"===== RUN {attempt} COMPLETED — Best: {self.best_coverage:.2f}% =====")
+    
+            # final_result = self.save_results()
+            result = self.save_results()
+            
+            if (final_result is None) or (result["Fault Coverage"] > final_result["Fault Coverage"]):
+                final_result = result
+    
+            # ✅ STOP condition
+            if self.best_coverage >= 100.0 and not self.skip_minimization:
+                self._log("Stopping early: optimal result achieved.")
                 break
-
-            init_population = test_vectors[:self.population_size]
-
-            gc.collect()
-
-        self._log(f"===== RUN {attempt} COMPLETED — Best: {self.best_coverage:.2f}% =====")
-
-        # final_result = self.save_results()
-        result = self.save_results()
-        
-        if (final_result is None) or (result["Fault Coverage"] > final_result["Fault Coverage"]):
-            final_result = result
-
-        # ✅ STOP condition
-        if self.best_coverage >= 100.0 and not self.skip_minimization:
-            self._log("Stopping early: optimal result achieved.")
-            break
-
-        # Otherwise retry (until MAX_RUNS)
-
-    return final_result
-    # ── Save Results ─────────────────────────────────────────────────────────
+    
+            # Otherwise retry (until MAX_RUNS)
+    
+        return final_result
+        # ── Save Results ─────────────────────────────────────────────────────────
 
     def save_results(self):
         self._update_execution_time()
