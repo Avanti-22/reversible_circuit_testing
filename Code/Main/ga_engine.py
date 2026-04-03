@@ -121,22 +121,47 @@ def _greedy_set_cover(coverage_masks, n_faults, fin_pop, time_check_fn):
     coverage_pct = (bin(covered).count('1') / n_faults) * 100
     return selected, coverage_pct
 
+# def _eval_vector_worker(args):
+#     """ProcessPoolExecutor worker — module-level so it's picklable."""
+#     circuit, fault_model, vector = args
+#     from fault_models import get_all_faulty_outputs
+#     from simulator import simulate_fault_free
+#     import numpy as np
+
+#     fault_free = simulate_fault_free(circuit, vector)
+#     faulty_outputs = get_all_faulty_outputs(circuit, vector, fault_model)
+#     n_faults = len(faulty_outputs)
+#     if n_faults == 0:
+#         return vector, 0.0, np.array([], dtype=bool), 0
+
+#     detected = np.array([f != fault_free for f in faulty_outputs], dtype=bool)
+#     coverage = float(np.sum(detected)) / n_faults * 100
+#     return vector, coverage, detected, n_faults
+
 def _eval_vector_worker(args):
-    """ProcessPoolExecutor worker — module-level so it's picklable."""
-    circuit, fault_model, vector = args
+    circuit, fault_models, vector = args
+
     from fault_models import get_all_faulty_outputs
     from simulator import simulate_fault_free
     import numpy as np
 
     fault_free = simulate_fault_free(circuit, vector)
-    faulty_outputs = get_all_faulty_outputs(circuit, vector, fault_model)
-    n_faults = len(faulty_outputs)
+
+    all_faulty_outputs = []
+    for model in fault_models:
+        faulty_outputs = get_all_faulty_outputs(circuit, vector, model)
+        all_faulty_outputs.extend(faulty_outputs)
+
+    n_faults = len(all_faulty_outputs)
+
     if n_faults == 0:
         return vector, 0.0, np.array([], dtype=bool), 0
 
-    detected = np.array([f != fault_free for f in faulty_outputs], dtype=bool)
+    detected = np.array([f != fault_free for f in all_faulty_outputs], dtype=bool)
     coverage = float(np.sum(detected)) / n_faults * 100
+
     return vector, coverage, detected, n_faults
+
 
 
 # ── Threshold: tune this based on your benchmarks ────────────────────────────
@@ -167,7 +192,11 @@ class GeneticAlgorithm:
         self.sparse_logging = sparse_logging
         self.circuit = circuit
         self.approach = "Random"
-        self.faultModel = faultModel
+        if isinstance(faultModel, str):
+            self.fault_models = [faultModel]
+        else:
+            self.fault_models = faultModel
+
         self.threshold = 100.0
         self.population_size = population_size or circuit['No of Lines']
         self.max_generations = max_generations if max_generations else 20
@@ -227,7 +256,7 @@ class GeneticAlgorithm:
         self.n = self.circuit["No of Lines"]
         self.N = self.circuit["No of Gates"]
         self.max_no_of_TV = 2 ** self.n if self.n < 20 else 2 ** 20  # cap at 1M for sanity
-        if self.faultModel == "GAF":
+        if self.fault_models == "GAF":
             gate_library = build_gaf_gate_library(self.circuit["No of Lines"])
             total_gates  = self.circuit["No of Gates"]
             self.gaf_insertion_gates = {
@@ -264,39 +293,83 @@ class GeneticAlgorithm:
     # Thread pool overhead (executor spinup ~10s) far exceeds benefit for
     # small-to-medium workloads. Cache hits are O(1) int lookup anyway.
 
+    # def stage_iii_fitness_function_computation(self, vector: int):
+    #     if vector in self.fault_cache:
+    #         return self.fault_cache[vector]
+
+    #     fault_free_output = simulate_fault_free(self.circuit, vector)
+    #     faulty_outputs = get_all_faulty_outputs(
+    #         self.circuit, vector, self.faultModel,
+    #         gaf_insertion_gates=self.gaf_insertion_gates   # None for non-GAF models
+    #     )
+
+    #     n_faults = len(faulty_outputs)
+
+    #     # Set cumulatedFaults only ONCE on first evaluation.
+    #     # After that, assert consistency — if fault count changes between vectors,
+    #     # it signals a non-deterministic fault model (e.g. GAF with random.choice).
+    #     if self.cumulatedFaults == 0:
+    #         self.cumulatedFaults = n_faults
+    #     elif n_faults != self.cumulatedFaults:
+    #         # Log the inconsistency but do not crash — use the established count
+    #         self._log(
+    #             f"[WARN] Fault count mismatch: expected {self.cumulatedFaults}, "
+    #             f"got {n_faults} for vector {vector}. "
+    #             f"Fault model '{self.faultModel}' may be non-deterministic."
+    #         )
+
+    #     detected_fault_array = self.get_detected_faults_row(fault_free_output, faulty_outputs)
+    #     detected = int(np.sum(detected_fault_array))
+    #     coverage = (detected / self.cumulatedFaults) * 100 if self.cumulatedFaults else 0
+
+    #     self.fault_cache[vector] = (coverage, detected_fault_array)
+    #     return coverage, detected_fault_array
+            
     def stage_iii_fitness_function_computation(self, vector: int):
         if vector in self.fault_cache:
             return self.fault_cache[vector]
 
         fault_free_output = simulate_fault_free(self.circuit, vector)
-        faulty_outputs = get_all_faulty_outputs(
-            self.circuit, vector, self.faultModel,
-            gaf_insertion_gates=self.gaf_insertion_gates   # None for non-GAF models
-        )
 
-        n_faults = len(faulty_outputs)
+        all_faulty_outputs = []
 
-        # Set cumulatedFaults only ONCE on first evaluation.
-        # After that, assert consistency — if fault count changes between vectors,
-        # it signals a non-deterministic fault model (e.g. GAF with random.choice).
+        # ── Combine faults from ALL models ─────────────────────────────
+        for model in self.fault_models:
+            faulty_outputs = get_all_faulty_outputs(
+                self.circuit,
+                vector,
+                model,
+                gaf_insertion_gates=self.gaf_insertion_gates if model == "GAF" else None
+            )
+            all_faulty_outputs.extend(faulty_outputs)
+
+        n_faults = len(all_faulty_outputs)
+
+        # Initialize fault count once
         if self.cumulatedFaults == 0:
             self.cumulatedFaults = n_faults
         elif n_faults != self.cumulatedFaults:
-            # Log the inconsistency but do not crash — use the established count
             self._log(
-                f"[WARN] Fault count mismatch: expected {self.cumulatedFaults}, "
-                f"got {n_faults} for vector {vector}. "
-                f"Fault model '{self.faultModel}' may be non-deterministic."
+                f"[WARN] Fault count mismatch: expected {self.cumulatedFaults}, got {n_faults}"
             )
 
-        detected_fault_array = self.get_detected_faults_row(fault_free_output, faulty_outputs)
-        detected = int(np.sum(detected_fault_array))
-        coverage = (detected / self.cumulatedFaults) * 100 if self.cumulatedFaults else 0
+        if n_faults == 0:
+            detected_array = np.array([], dtype=bool)
+            coverage = 0.0
+        else:
+            detected_array = np.array(
+                [f != fault_free_output for f in all_faulty_outputs],
+                dtype=bool
+            )
+            detected = int(np.sum(detected_array))
+            coverage = (detected / self.cumulatedFaults) * 100
 
-        self.fault_cache[vector] = (coverage, detected_fault_array)
-        return coverage, detected_fault_array
-            
+        self.fault_cache[vector] = (coverage, detected_array)
+        return coverage, detected_array
 
+
+        
+    
     # ── Fitness for Population ────────────────────────────────────────────────
 
     # def compute_fitness_for_population(self, population):
@@ -334,7 +407,7 @@ class GeneticAlgorithm:
             uncached = [v for v in population if v not in self.fault_cache]
 
             if uncached:
-                args = [(self.circuit, self.faultModel, v) for v in uncached]
+                args = [(self.circuit, self.fault_models, v) for v in uncached]
                 n_workers = min(len(uncached), os.cpu_count())
 
                 with ProcessPoolExecutor(max_workers=n_workers) as executor:
@@ -797,7 +870,7 @@ class GeneticAlgorithm:
             "Circuit Name":         self.circuit["Circuit Name"],
             "No of Lines":          self.circuit["No of Lines"],
             "No of Gates":          self.circuit["No of Gates"],
-            "Fault Model":          self.faultModel,
+            "Fault Model":           "+".join(self.fault_models),
             "Total Faults":         self.cumulatedFaults,
             "GA Approach":          self.approach,
             "Detected Faults":      int(np.sum(self.detectedFaults)) if self.detectedFaults is not None else 0,
