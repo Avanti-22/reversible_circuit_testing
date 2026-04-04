@@ -759,7 +759,7 @@ class GeneticAlgorithm:
 
     #     return self.save_results()
     def run(self):
-        MAX_RUNS = 3
+        MAX_RUNS = 5
         final_result = None
     
         for attempt in range(1, MAX_RUNS + 1):

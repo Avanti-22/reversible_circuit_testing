@@ -90,6 +90,7 @@ def _run_single_job(circuit_dict, ga_approach, job, filepath,
             max_generations=max_generations,
             time_limit_seconds=time_limit_seconds,
             skip_minimization=skip_minimization,
+            
         )
 
         results = GA_object.run()
