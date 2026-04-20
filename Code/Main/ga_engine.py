@@ -637,7 +637,8 @@ class GeneticAlgorithm:
             fault_matrix, vector_map, fin_pop
         )
         self._debug("Coverage Masks:")
-        self._debug(f"{coverage_masks}")
+        for vec, mask in zip(fin_pop, coverage_masks):
+            print(f"Vector {vec} → Mask {mask} ({bin(mask)})")
         # Route: DP (optimal) or greedy (approximate) based on fault count
         if n_faults <= _DP_FAULT_LIMIT:
             self._log_detail(
