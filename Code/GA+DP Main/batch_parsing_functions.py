@@ -2,7 +2,7 @@
 from parser import *
 
 # =======================PARSE REAL FILE=========================
-def parse_real_file(filepath: str) -> Dict[str, Any]:
+def parse_real_file(filepath: str):
 
     parser = RealFileParser()
     

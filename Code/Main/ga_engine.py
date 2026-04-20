@@ -24,6 +24,9 @@ logger = logging.getLogger(__name__)
 
 _DP_FAULT_LIMIT = 20
 
+DEBUG = True
+
+
 def _compress_fault_matrix(fault_matrix, vector_map, fin_pop):
     """Convert boolean fault_matrix rows → integer bitmasks, one per vector."""
     n_faults = fault_matrix.shape[1]
@@ -222,6 +225,10 @@ class GeneticAlgorithm:
 
     # ── Logging Helpers ──────────────────────────────────────────────────────
 
+    def _debug(self, msg):
+        if DEBUG:
+            print(msg)
+    
     def _log(self, msg):
         if self.verbose:
             print(msg)
@@ -264,6 +271,13 @@ class GeneticAlgorithm:
                 for k in range(-1, total_gates)
             }
             self._log(f"GAF: pre-selected {len(self.gaf_insertion_gates)} insertion gates (fixed for this run)")
+            
+        self._debug(f"\n[Stage I] Parameters:")
+        self._debug(f"  Lines (n): {self.n}")
+        self._debug(f"  Gates (N): {self.N}")
+        self._debug(f"  Max TV: {self.max_no_of_TV}")    
+                
+        
     # ── Stage II ─────────────────────────────────────────────────────────────
 
     def stage_ii_TV_selection(self, test_size=None):
@@ -326,11 +340,13 @@ class GeneticAlgorithm:
     #     return coverage, detected_fault_array
             
     def stage_iii_fitness_function_computation(self, vector: int):
+        self._debug(f"\n[Stage III] Evaluating Vector: {vector} ({self.represent_the_vec_in_binary(vector)})")
         if vector in self.fault_cache:
+            self._debug("  → Cache HIT")
             return self.fault_cache[vector]
 
         fault_free_output = simulate_fault_free(self.circuit, vector)
-
+        self._debug(f"  Fault-free output: {fault_free_output}")
         all_faulty_outputs = []
 
         # ── Combine faults from ALL models ─────────────────────────────
@@ -365,6 +381,9 @@ class GeneticAlgorithm:
             coverage = (detected / self.cumulatedFaults) * 100
 
         self.fault_cache[vector] = (coverage, detected_array)
+        self._debug(f"  Total Faults: {n_faults}")
+        self._debug(f"  Detected Array: {detected_array}")
+        self._debug(f"  Coverage: {coverage:.2f}%")
         return coverage, detected_array
 
 
@@ -395,6 +414,7 @@ class GeneticAlgorithm:
 
     
     def compute_fitness_for_population(self, population):
+        self._debug(f"\n[Stage III - Population] Evaluating Population: {population}")
         fitnesses, rows, vector_map = [], [], {}
 
         use_parallel = (
@@ -433,32 +453,36 @@ class GeneticAlgorithm:
             rows.append(det_row)
             vector_map[vec] = i
 
-            if cov >= self.threshold:
+            if cov >= self.threshold:                                                                  
                 return fitnesses, np.array(rows, dtype=bool), vector_map, True
-
+        self._debug(f"  Fitnesses: {fitnesses}")
         return fitnesses, np.array(rows, dtype=bool), vector_map, False
     
     
     # ── Stage IV ─────────────────────────────────────────────────────────────
 
     def stage_iv_roulette_wheel_selection(self, fitnessFunction, population):
+        self._debug("\n[Stage IV] Selection Probabilities:")
         total_fitness = sum(fitnessFunction)
         if total_fitness == 0:
             probabilities = [1 / len(fitnessFunction)] * len(fitnessFunction)
         else:
             probabilities = [f / total_fitness for f in fitnessFunction]
-
+        
+        for vec, prob in zip(population, probabilities):
+            self._debug(f"  Vector: {vec} | Fitness: {fitnessFunction[population.index(vec)]:.4f} | Probability: {prob:.4f}")
         parent_pairs = []
         for _ in range(self.n):
             p1 = random.choices(population, weights=probabilities)[0]
             p2 = random.choices(population, weights=probabilities)[0]
             parent_pairs.append((p1, p2))
-
+        self._debug(f"  Selected Parents: {parent_pairs}")
         return parent_pairs
 
     # # ── Stage V ──────────────────────────────────────────────────────────────
 
     def stage_v_crossover(self, parent_pairs):
+        self._debug("\n[Stage V] Crossover:")
         children = []
         for p1, p2 in parent_pairs:
             b1 = self.represent_the_vec_in_binary(p1)
@@ -466,6 +490,9 @@ class GeneticAlgorithm:
             cp = random.randint(1, self.n - 1)
             child = self.represent_bin_in_int(b1[:cp] + b2[cp:])
             children.append(child)
+            
+            self._debug(f"  Parents: {p1} ({b1}), {p2} ({b2})")
+            self._debug(f"  Crossover Point: {cp}")
         return children
 
     # # ── Stage VI ─────────────────────────────────────────────────────────────
@@ -489,7 +516,8 @@ class GeneticAlgorithm:
         - Low mutation when near convergence (exploitation)
         - Never drops below a safe minimum
         """
-    
+
+        self._debug("\n[Stage VI] Mutation:")
         # ── Adaptive mutation rate based on progress ─────────────────────
         if self.best_coverage < 70:
             mutation_rate = 0.30   # strong exploration
@@ -509,9 +537,10 @@ class GeneticAlgorithm:
                 # Flip 1 bit (you can extend this if needed)
                 flip_idx = random.randint(0, self.n - 1)
                 cb[flip_idx] ^= 1
-    
+                self._debug(f"  {child} → {cb} (bit flipped at {flip_idx})")
                 mutated.append(self.represent_bin_in_int(cb))
             else:
+                self._debug(f"  {child} → No mutation")
                 mutated.append(child)
     
         return mutated        
@@ -536,7 +565,7 @@ class GeneticAlgorithm:
 
 
     def stage_vii_test_population_generation(self, init_pop, child_pop):
-    
+        
         # Preserves order AND deduplicates — unlike set()
         seen = set()
         combined_population = []
@@ -548,7 +577,9 @@ class GeneticAlgorithm:
         combined_fitnesses, combined_fault_matrix, combined_vector_map, singleton_hit  = \
             self.compute_fitness_for_population(combined_population)
 
-
+        self._debug("\n[Stage VII] Combined Population:")
+        self._debug(f"  {combined_population}")
+        
         if singleton_hit:
             winning_vec = list(combined_vector_map.keys())[-1]
             return [winning_vec], [combined_fitnesses[-1]], combined_fault_matrix, combined_vector_map
@@ -561,7 +592,8 @@ class GeneticAlgorithm:
             reverse=True
         )
         sorted_fitnesses, sorted_pop = zip(*sorted_pairs)
-
+        self._debug(f"  Sorted Population: {sorted_pop}")
+        self._debug(f"  Sorted Fitness: {sorted_fitnesses}")
         return list(sorted_pop), sorted_fitnesses, combined_fault_matrix, combined_vector_map
 
 
@@ -598,12 +630,14 @@ class GeneticAlgorithm:
         """
         if not fin_pop or self.cumulatedFaults == 0:
             return [], 0.0
-
+        self._debug("\n[Stage VIII] Fault Matrix:")
+        self._debug(f"{fault_matrix}")
         # Convert boolean matrix rows → integer bitmasks
         coverage_masks, n_faults = _compress_fault_matrix(
             fault_matrix, vector_map, fin_pop
         )
-
+        self._debug("Coverage Masks:")
+        self._debug(f"{coverage_masks}")
         # Route: DP (optimal) or greedy (approximate) based on fault count
         if n_faults <= _DP_FAULT_LIMIT:
             self._log_detail(
@@ -628,6 +662,8 @@ class GeneticAlgorithm:
             f"Stage VIII result   : {len(selected)} vector(s),"
             f" {coverage:.2f}% coverage  [{method}]"
         )
+        self._debug(f"Selected Vectors: {selected}")
+        self._debug(f"Coverage Achieved: {coverage:.2f}%")
         return selected, coverage
     # ── Main Run ─────────────────────────────────────────────────────────────
 
@@ -783,10 +819,11 @@ class GeneticAlgorithm:
     
             # ── Stage II ────────────────────────────────────────────
             init_population = self.stage_ii_TV_selection()
-    
+            self._debug(f"\n[Stage II] Initial Population: {init_population}")
             # ── MAIN GA LOOP ────────────────────────────────────────
             for gen in range(self.max_generations):
-    
+                self._debug(f"\n========== Generation {gen} ==========")
+                self._debug(f"Population: {init_population}")
                 if self._check_time_limit():
                     self._log("Terminated: Time limit reached.")
                     break
@@ -810,7 +847,7 @@ class GeneticAlgorithm:
                 parents = self.stage_iv_roulette_wheel_selection(init_fitnesses, init_population)
                 children = self.stage_v_crossover(parents)
                 mutated_children = self.stage_vi_mutation(children)
-    
+
                 fin_sorted_population, fin_sorted_fitnesses, \
                 fin_detected_matrix, fin_vector_map = \
                     self.stage_vii_test_population_generation(init_population, mutated_children)
@@ -818,7 +855,11 @@ class GeneticAlgorithm:
                 combined_detected_list = np.any(fin_detected_matrix, axis=0)
                 detected_faults = int(np.sum(combined_detected_list))
                 fault_coverage = (detected_faults / self.cumulatedFaults) * 100
-    
+
+                
+                self._debug(f"BM Coverage: {fault_coverage:.2f}%")
+                self._debug(f"BM Best Coverage So Far: {self.best_coverage:.2f}%")
+                
                 # Minimization
                 if not self.skip_minimization:
                     min_set, min_cov = self.stage_viii_minimal_test_set(
@@ -831,13 +872,19 @@ class GeneticAlgorithm:
                         test_vectors = fin_sorted_population
                 else:
                     test_vectors = fin_sorted_population
-    
+
+                
+                self._debug(f"AM Coverage: {fault_coverage:.2f}%")
+                self._debug(f"AM Best Coverage So Far: {self.best_coverage:.2f}%")
+                
                 # Best update
                 if fault_coverage > self.best_coverage:
                     self.best_coverage = fault_coverage
                     self.best_vector_set = test_vectors
                     self.detectedFaults = combined_detected_list
-    
+
+                
+                
                 if fault_coverage >= self.threshold:
                     break
     
