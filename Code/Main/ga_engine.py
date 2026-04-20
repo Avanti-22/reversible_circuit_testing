@@ -592,9 +592,25 @@ class GeneticAlgorithm:
             reverse=True
         )
         sorted_fitnesses, sorted_pop = zip(*sorted_pairs)
+        
+        sorted_population = list(sorted_pop)
+
+        # rebuild fault matrix in sorted order
+        sorted_fault_matrix = np.array([
+            combined_fault_matrix[combined_vector_map[v]]
+            for v in sorted_population
+        ], dtype=bool)
+
+        # rebuild vector map
+        sorted_vector_map = {v: i for i, v in enumerate(sorted_population)}
         self._debug(f"  Sorted Population: {sorted_pop}")
         self._debug(f"  Sorted Fitness: {sorted_fitnesses}")
-        return list(sorted_pop), sorted_fitnesses, combined_fault_matrix, combined_vector_map
+
+        return sorted_population, sorted_fitnesses, sorted_fault_matrix, sorted_vector_map
+        
+        
+  
+        # return list(sorted_pop), sorted_fitnesses, combined_fault_matrix, combined_vector_map
 
 
     # ── Stage VIII ───────────────────────────────────────────────────────────
