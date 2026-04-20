@@ -874,8 +874,7 @@ class GeneticAlgorithm:
                     test_vectors = fin_sorted_population
 
                 
-                self._debug(f"AM Coverage: {fault_coverage:.2f}%")
-                self._debug(f"AM Best Coverage So Far: {self.best_coverage:.2f}%")
+                
                 
                 # Best update
                 if fault_coverage > self.best_coverage:
@@ -883,7 +882,8 @@ class GeneticAlgorithm:
                     self.best_vector_set = test_vectors
                     self.detectedFaults = combined_detected_list
 
-                
+                self._debug(f"AM Coverage: {fault_coverage:.2f}%")
+                self._debug(f"AM Best Coverage So Far: {self.best_coverage:.2f}%")
                 
                 if fault_coverage >= self.threshold:
                     break
