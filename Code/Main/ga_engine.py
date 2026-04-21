@@ -429,7 +429,7 @@ class GeneticAlgorithm:
                 gaf_insertion_gates=self.gaf_insertion_gates if model == "GAF" else None
             )
             all_faulty_outputs.extend(faulty_outputs)
-
+        print(f"vec: {vector}, yff: {fault_free_output}, faulty: {all_faulty_outputs}")
         n_faults = len(all_faulty_outputs)
 
         # Initialize fault count once
