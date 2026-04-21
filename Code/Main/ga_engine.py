@@ -224,7 +224,7 @@ def _eval_vector_worker(args):
     for model in fault_models:
         faulty_outputs = get_all_faulty_outputs(circuit, vector, model)
         all_faulty_outputs.extend(faulty_outputs)
-    print(f"vec: {vector}, yff: {fault_free}, faulty: {all_faulty_outputs}")
+    result = (f"vec: {vector}, yff: {fault_free}, faulty: {all_faulty_outputs}")
 
     n_faults = len(all_faulty_outputs)
 
@@ -234,7 +234,7 @@ def _eval_vector_worker(args):
     detected = np.array([f != fault_free for f in all_faulty_outputs], dtype=bool)
     coverage = float(np.sum(detected)) / n_faults * 100
 
-    return vector, coverage, detected, n_faults
+    return vector, coverage, detected, n_faults, result
 
 
 
@@ -429,7 +429,7 @@ class GeneticAlgorithm:
                 gaf_insertion_gates=self.gaf_insertion_gates if model == "GAF" else None
             )
             all_faulty_outputs.extend(faulty_outputs)
-        print(f"vec: {vector}, yff: {fault_free_output}, faulty: {all_faulty_outputs}")
+        result = (f"vec: {vector}, yff: {fault_free_output}, faulty: {all_faulty_outputs}")
         n_faults = len(all_faulty_outputs)
 
         # Initialize fault count once
@@ -455,7 +455,7 @@ class GeneticAlgorithm:
         self._debug(f"  Total Faults: {n_faults}")
         self._debug(f"  Detected Array: {detected_array}")
         self._debug(f"  Coverage: {coverage:.2f}%")
-        return coverage, detected_array
+        return coverage, detected_array, result
 
 
         
@@ -502,11 +502,12 @@ class GeneticAlgorithm:
                 n_workers = min(len(uncached), os.cpu_count())
 
                 with ProcessPoolExecutor(max_workers=n_workers) as executor:
-                    for vec, cov, det_row, n_faults in executor.map(
+                    for vec, cov, det_row, n_faults, result in executor.map(
                         _eval_vector_worker, args, chunksize=1
                     ):
                         self.fault_cache[vec] = (cov, det_row)
                         self.cumulatedFaults = n_faults
+                        print(result)
 
         # Assemble from cache (sequential — just dict lookups)
         for i, vec in enumerate(population):
@@ -516,10 +517,10 @@ class GeneticAlgorithm:
 
             if vec not in self.fault_cache:
                 # small circuit path — compute inline
-                cov, det_row = self.stage_iii_fitness_function_computation(vec)
+                cov, det_row, result = self.stage_iii_fitness_function_computation(vec)
             else:
-                cov, det_row = self.fault_cache[vec]
-
+                cov, det_row, result = self.fault_cache[vec]
+            print(result)
             fitnesses.append(cov)
             rows.append(det_row)
             vector_map[vec] = i
