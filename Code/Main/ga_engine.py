@@ -224,6 +224,7 @@ def _eval_vector_worker(args):
     for model in fault_models:
         faulty_outputs = get_all_faulty_outputs(circuit, vector, model)
         all_faulty_outputs.extend(faulty_outputs)
+    print(f"vec: {vector}, yff: {fault_free}, faulty: {all_faulty_outputs}")
 
     n_faults = len(all_faulty_outputs)
 
