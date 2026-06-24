@@ -34,52 +34,12 @@ Supported fault models
     "MMGF"   Multiple Missing Gate Faults  (pairs by default)
     "PMGF"   Partial Missing Gate Fault    (one or more control lines missing)
     "ALL"    Build dictionary for all three simultaneously
-
-Equivalence-class resolution (Phase 5)
-───────────────────────────────────────
-When multiple fault hypotheses share an identical syndrome, the localizer
-searches for a single discriminating input vector that forces them to produce
-distinct outputs.
-
-  • n_lines ≤ 16 : exhaustive search over the full 2^n space (original logic,
-                   retained unchanged).
-  • n_lines >  16: Directed GA + DP hybrid (new — replaces the old
-                   "return None / random sampling" placeholder).
-
-Directed GA + DP hybrid design
-───────────────────────────────
-Dynamic Programming prefix cache
-    Before the GA starts, a prefix table is built:
-        prefix_cache[v] = intermediate bit-state after simulating gates
-                          0 … (min_gate - 1) on input vector v
-    where min_gate = minimum gate index involved in any hypothesis in the
-    equivalence class.  All subsequent per-hypothesis simulations start
-    from this cached state and simulate only the suffix   min_gate … end ,
-    avoiding redundant re-simulation of the common prefix on every fitness
-    evaluation.
-
-Genetic Algorithm engine
-    • Chromosome  : integer in [0, 2^n_lines - 1] — the candidate input
-    • Population  : GA_POPULATION_SIZE binary chromosomes (default 200)
-    • Selection   : tournament of size GA_TOURNAMENT_SIZE (default 4)
-    • Crossover   : single-point on the integer bit representation
-    • Mutation    : each bit flips with probability GA_MUTATION_RATE
-    • Fitness     : number of distinct output values produced by applying
-                    every hypothesis in the class to the candidate vector.
-                    Perfect score = len(hypotheses) (all outputs unique).
-    • Termination : perfect score found, or GA_MAX_GENERATIONS exhausted.
-
-The best chromosome found across all generations is returned.  If the GA
-cannot perfectly discriminate, the chromosome with the highest diversity
-score is still returned (best-effort) so the pipeline always populates
-the discriminating_vector field.
 ═══════════════════════════════════════════════════════════════════════════════
 """
 
 from __future__ import annotations
 
 import itertools
-import random
 import time
 from dataclasses import dataclass, field
 from itertools import combinations
@@ -89,19 +49,6 @@ import numpy as np
 
 # ── import from your existing project ─────────────────────────────────────────
 from simulator import simulate_fault_free, simulate_MMGF_circuit, simulate_PMGF_circuit, apply_gate
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-#  GA hyper-parameters  (tune here without touching any algorithm logic)
-# ══════════════════════════════════════════════════════════════════════════════
-
-GA_POPULATION_SIZE  : int   = 200     # chromosomes per generation
-GA_MAX_GENERATIONS  : int   = 150     # hard cap on evolution rounds
-GA_TOURNAMENT_SIZE  : int   = 4       # k-way tournament selection
-GA_CROSSOVER_RATE   : float = 0.85    # probability of performing crossover
-GA_MUTATION_RATE    : float = 0.02    # per-bit flip probability
-GA_ELITE_FRACTION   : float = 0.10    # top fraction copied unchanged each gen
-GA_EARLY_STOP_STALE : int   = 25      # stop if best fitness unchanged this long
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -169,354 +116,6 @@ def _apply_gate_inverse(current_bits: int, gate) -> int:
     PERES are all involutions), so inverse == forward application.
     """
     return apply_gate(current_bits, gate)
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-#  DP prefix cache builder
-# ══════════════════════════════════════════════════════════════════════════════
-
-def _build_prefix_cache(circuit: dict,
-                        candidate_vectors: List[int],
-                        stop_before_gate: int) -> Dict[int, int]:
-    """
-    For every input vector in *candidate_vectors*, simulate gates 0 …
-    stop_before_gate-1 and store the intermediate bit-state.
-
-    Returns
-    -------
-    dict mapping  input_vector_int → intermediate_state_int
-
-    Complexity: O(|candidates| × stop_before_gate)  — runs once before GA.
-
-    Key insight
-    -----------
-    Reversible gates are self-inverse involutions, so the intermediate state
-    is deterministic and can be computed exactly once per unique input vector.
-    The GA then starts every fault simulation from this cached state rather
-    than re-walking the prefix on every fitness evaluation.
-    """
-    compiled_gates = circuit["Compiled Rep"]
-    prefix_end     = min(stop_before_gate, len(compiled_gates))
-
-    cache: Dict[int, int] = {}
-    for vec in candidate_vectors:
-        state = vec
-        for idx in range(prefix_end):
-            state = apply_gate(state, compiled_gates[idx])
-        cache[vec] = state
-    return cache
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-#  Suffix simulator (uses DP prefix cache)
-# ══════════════════════════════════════════════════════════════════════════════
-
-def _simulate_hypothesis_with_cache(
-        circuit: dict,
-        input_vec: int,
-        hypothesis,                  # FaultHypothesis
-        prefix_cache: Dict[int, int],
-        start_gate: int) -> int:
-    """
-    Simulate one fault hypothesis for *input_vec* using a pre-built prefix
-    cache to skip gates 0 … start_gate-1.
-
-    The cached intermediate state is the starting point; only gates
-    start_gate … end are walked.  For SMGF/MMGF the skipped gates are
-    simply absent; for PMGF the faulty gate's modified logic is applied
-    when its index is reached during the suffix walk.
-    """
-    # Retrieve the cached prefix state (or simulate full circuit as fallback)
-    cached_state = prefix_cache.get(input_vec)
-    if cached_state is None:
-        # Fallback: compute prefix on-the-fly (should not happen in practice)
-        compiled_gates = circuit["Compiled Rep"]
-        cached_state   = input_vec
-        for idx in range(start_gate):
-            cached_state = apply_gate(cached_state, compiled_gates[idx])
-
-    fault_type = hypothesis.fault_type
-
-    if fault_type == "SMGF":
-        return simulate_MMGF_circuit(
-            circuit,
-            cached_state,
-            faulty_gate_indices={hypothesis.gate_ids[0]}
-            # NOTE: simulate_MMGF_circuit accepts start_gate via the
-            # faulty_gate_indices set; since gates < start_gate are already
-            # applied to cached_state, we must simulate the full suffix.
-            # We therefore use a lightweight inline suffix loop below instead.
-        )
-
-    elif fault_type == "MMGF":
-        # Inline suffix simulation — skip listed gate indices
-        state           = cached_state
-        compiled_gates  = circuit["Compiled Rep"]
-        faulty_set      = set(hypothesis.gate_ids)
-        for idx in range(start_gate, len(compiled_gates)):
-            if idx not in faulty_set:
-                state = apply_gate(state, compiled_gates[idx])
-        return state
-
-    else:  # PMGF
-        return simulate_PMGF_circuit(
-            circuit,
-            cached_state,
-            faulty_gate_index=hypothesis.gate_ids[0],
-            missing_control_bits_mask=hypothesis.missing_mask,
-            start_gate=start_gate
-        )
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-#  GA fitness function
-# ══════════════════════════════════════════════════════════════════════════════
-
-def _fitness(chromosome: int,
-             hypotheses: List["FaultHypothesis"],
-             circuit: dict,
-             prefix_cache: Dict[int, int],
-             start_gate: int) -> int:
-    """
-    Evaluate discrimination power of *chromosome* as a test vector.
-
-    Returns the count of distinct output values produced by applying every
-    hypothesis in the equivalence class to this input.
-
-    Perfect score  = len(hypotheses)  (every hypothesis yields a unique output)
-    Worst  score   = 1               (all hypotheses produce the same output)
-
-    Using raw distinct-output count (rather than Shannon entropy over the
-    output distribution) keeps integer arithmetic, avoids floating-point
-    instability, and is monotonically equivalent for the selection pressure
-    we need.
-    """
-    outputs: Set[int] = set()
-    for hyp in hypotheses:
-        out = _simulate_hypothesis_with_cache(
-            circuit, chromosome, hyp, prefix_cache, start_gate)
-        outputs.add(out)
-        # Early exit: already perfectly discriminating
-        if len(outputs) == len(hypotheses):
-            break
-    return len(outputs)
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-#  GA operators
-# ══════════════════════════════════════════════════════════════════════════════
-
-def _tournament_select(population: List[int],
-                       fitnesses: List[int],
-                       k: int,
-                       rng: random.Random) -> int:
-    """
-    k-way tournament selection.
-
-    Randomly sample k individuals and return the one with the highest fitness.
-    Ties broken by index order (deterministic given the RNG seed).
-    """
-    indices    = rng.sample(range(len(population)), k)
-    best_idx   = max(indices, key=lambda i: fitnesses[i])
-    return population[best_idx]
-
-
-def _single_point_crossover(parent_a: int,
-                             parent_b: int,
-                             n_lines: int,
-                             rng: random.Random) -> Tuple[int, int]:
-    """
-    Single-point crossover on the integer bit representation.
-
-    A crossover point p ∈ [1, n_lines-1] is chosen uniformly.
-    Bits 0 … p-1 come from parent_a; bits p … n_lines-1 from parent_b
-    (and vice-versa for the second child).
-    """
-    p      = rng.randint(1, n_lines - 1)
-    # Mask for the lower p bits
-    lo_mask = (1 << p) - 1
-    hi_mask = ((1 << n_lines) - 1) ^ lo_mask
-
-    child_a = (parent_a & lo_mask) | (parent_b & hi_mask)
-    child_b = (parent_b & lo_mask) | (parent_a & hi_mask)
-    return child_a, child_b
-
-
-def _bit_flip_mutate(chromosome: int,
-                     n_lines: int,
-                     mutation_rate: float,
-                     rng: random.Random) -> int:
-    """
-    Per-bit flip mutation.
-
-    Each of the n_lines bits is independently flipped with probability
-    *mutation_rate*.  This preserves the valid chromosome domain [0, 2^n-1].
-    """
-    for bit_pos in range(n_lines):
-        if rng.random() < mutation_rate:
-            chromosome ^= (1 << bit_pos)
-    return chromosome
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-#  Main GA engine
-# ══════════════════════════════════════════════════════════════════════════════
-
-def _run_directed_ga(circuit: dict,
-                     hypotheses: List["FaultHypothesis"],
-                     existing_test_set: Set[int],
-                     prefix_cache: Dict[int, int],
-                     start_gate: int,
-                     rng: random.Random) -> Optional[int]:
-    """
-    Directed Genetic Algorithm to find the best discriminating test vector
-    for an equivalence class of fault hypotheses.
-
-    Parameters
-    ----------
-    circuit           : parsed circuit dict
-    hypotheses        : the equivalence class (list of FaultHypothesis)
-    existing_test_set : vectors already used (preferred to avoid re-use)
-    prefix_cache      : DP intermediate states keyed by input integer
-    start_gate        : first gate index in the suffix (after prefix cache)
-    rng               : seeded random.Random for reproducibility
-
-    Returns
-    -------
-    The integer input vector (chromosome) with the highest diversity score
-    found across all generations, or None if the population collapses entirely
-    (highly unlikely in practice).
-
-    Algorithm outline
-    -----------------
-    1.  Initialise population: half random, half biased toward bit-patterns
-        likely to activate the control conditions of gates in the hypotheses
-        (so the GA starts in a useful region of the search space).
-    2.  Evaluate fitness for every chromosome.
-    3.  Repeat until perfect score or max-generations/stale-convergence:
-        a.  Copy elite fraction unchanged (elitism).
-        b.  Fill remainder via tournament selection + crossover + mutation.
-        c.  Penalise chromosomes in existing_test_set (add them back at
-            the bottom of the fitness ranking so they are rarely selected).
-        d.  Update best known chromosome.
-    4.  Return best chromosome found.
-    """
-    n_lines     = circuit["No of Lines"]
-    pop_size    = GA_POPULATION_SIZE
-    max_val     = (1 << n_lines) - 1
-    perfect     = len(hypotheses)
-    n_elite     = max(1, int(pop_size * GA_ELITE_FRACTION))
-
-    # ── 1. Initialise population ──────────────────────────────────────────────
-    population: List[int] = []
-
-    # Biased seed: use control-bit patterns from the hypotheses' gates to
-    # populate the first 25 % of the population with vectors that are likely
-    # to exercise the relevant gates.
-    compiled_gates = circuit["Compiled Rep"]
-    seed_vectors: Set[int] = set()
-
-    for hyp in hypotheses:
-        for gid in hyp.gate_ids:
-            if gid < len(compiled_gates):
-                gate = compiled_gates[gid]
-                ctrl = gate[1] if len(gate) > 1 else 0
-                seed_vectors.add(ctrl)                  # all controls HIGH
-                seed_vectors.add(ctrl ^ (ctrl & -ctrl)) # flip one control
-                seed_vectors.add(max_val ^ ctrl)        # complement
-
-    # Add seeds (clamped to valid range)
-    for sv in seed_vectors:
-        sv_clamped = sv & max_val
-        if len(population) < pop_size // 4:
-            population.append(sv_clamped)
-
-    # Fill remainder with random chromosomes
-    while len(population) < pop_size:
-        population.append(rng.randint(0, max_val))
-
-    # ── 2. Initial fitness evaluation ─────────────────────────────────────────
-    fitnesses = [
-        _fitness(chrom, hypotheses, circuit, prefix_cache, start_gate)
-        for chrom in population
-    ]
-
-    best_chrom  = population[int(np.argmax(fitnesses))]
-    best_score  = max(fitnesses)
-    stale_count = 0
-
-    if best_score == perfect:
-        # Lucky initialisation
-        return best_chrom if best_chrom not in existing_test_set else best_chrom
-
-    # ── 3. Evolution loop ─────────────────────────────────────────────────────
-    for _generation in range(GA_MAX_GENERATIONS):
-
-        # a. Sort by fitness descending (for elite selection)
-        ranked = sorted(range(pop_size), key=lambda i: fitnesses[i], reverse=True)
-
-        new_population: List[int] = []
-
-        # b. Elitism: copy top n_elite chromosomes unchanged
-        for ei in ranked[:n_elite]:
-            new_population.append(population[ei])
-
-        # c. Fill the rest via selection → crossover → mutation
-        while len(new_population) < pop_size:
-            parent_a = _tournament_select(
-                population, fitnesses, GA_TOURNAMENT_SIZE, rng)
-            parent_b = _tournament_select(
-                population, fitnesses, GA_TOURNAMENT_SIZE, rng)
-
-            if rng.random() < GA_CROSSOVER_RATE and n_lines > 1:
-                child_a, child_b = _single_point_crossover(
-                    parent_a, parent_b, n_lines, rng)
-            else:
-                child_a, child_b = parent_a, parent_b
-
-            child_a = _bit_flip_mutate(child_a, n_lines, GA_MUTATION_RATE, rng)
-            child_b = _bit_flip_mutate(child_b, n_lines, GA_MUTATION_RATE, rng)
-
-            # Clamp to valid range (mutation can set bits beyond n_lines)
-            new_population.append(child_a & max_val)
-            if len(new_population) < pop_size:
-                new_population.append(child_b & max_val)
-
-        population = new_population
-
-        # d. Evaluate fitness for new population
-        fitnesses = [
-            _fitness(chrom, hypotheses, circuit, prefix_cache, start_gate)
-            for chrom in population
-        ]
-
-        # Soft penalty: demote chromosomes already in the test set so the GA
-        # prefers novel vectors (but does not hard-exclude them — a repeat
-        # vector that perfectly discriminates is still better than nothing).
-        for i, chrom in enumerate(population):
-            if chrom in existing_test_set:
-                fitnesses[i] = max(0, fitnesses[i] - 1)
-
-        # e. Update global best
-        gen_best_idx   = int(np.argmax(fitnesses))
-        gen_best_score = fitnesses[gen_best_idx]
-
-        if gen_best_score > best_score:
-            best_score  = gen_best_score
-            best_chrom  = population[gen_best_idx]
-            stale_count = 0
-        else:
-            stale_count += 1
-
-        # f. Perfect discrimination found — early exit
-        if best_score == perfect:
-            break
-
-        # g. Early stop on stale convergence
-        if stale_count >= GA_EARLY_STOP_STALE:
-            break
-
-    return best_chrom if best_score > 0 else None
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -872,136 +471,47 @@ def _bidirectional_verify(circuit: dict,
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  Phase 5 — Equivalence class resolution
-#            Directed GA + DP hybrid (replaces the old placeholder)
 # ══════════════════════════════════════════════════════════════════════════════
 
 def _find_discriminating_vector(circuit: dict,
                                  hypotheses: List[FaultHypothesis],
                                  existing_test_set: Set[int]) -> Optional[int]:
     """
-    Find the single best input vector that maximises output diversity across
-    all fault hypotheses in the equivalence class, enabling the class to be
-    split into distinct sub-classes.
+    Search 2^n_lines inputs for one that produces different outputs under
+    different fault hypotheses → use it to split the equivalence class.
 
-    Strategy
-    ────────
-    n_lines ≤ 16  →  exhaustive search (original O(2^n) logic, unchanged).
-                     Guaranteed optimal result at acceptable cost.
-
-    n_lines >  16 →  Directed GA + DP hybrid (replaces the old
-                     "return None / random sampling" placeholder).
-
-                     Step 1 — DP prefix cache
-                         Determine the earliest gate index referenced by any
-                         hypothesis (min_gate).  Pre-simulate all input vectors
-                         in a working sample set through gates 0 … min_gate-1
-                         and cache the resulting intermediate states.  All
-                         subsequent fitness evaluations start from this cached
-                         state, paying only the suffix simulation cost.
-
-                     Step 2 — GA engine
-                         Run _run_directed_ga() with the prefix cache to
-                         evolve a population of candidate vectors toward
-                         maximum output diversity.
-
-                     Step 3 — Return best
-                         The best chromosome (highest diversity score) is
-                         returned regardless of whether perfect discrimination
-                         was achieved.  The pipeline always populates the
-                         discriminating_vector field.
-
-    Returns
-    -------
-    An integer representing the best discriminating input vector found,
-    or None only if the equivalence class is empty.
+    Exhaustive for n_lines ≤ 16; otherwise returns None (use random sampling).
     """
-    if not hypotheses:
+    n = circuit["No of Lines"]
+    if n > 16:
         return None
 
-    n = circuit["No of Lines"]
+    best_vec   = None
+    best_score = -1
 
-    # ── Path A: exhaustive search (n ≤ 16) ────────────────────────────────────
-    if n <= 16:
-        best_vec   = None
-        best_score = -1
+    for val in range(2 ** n):
+        if val in existing_test_set:
+            continue
 
-        for val in range(2 ** n):
-            if val in existing_test_set:
-                continue
+        outputs = set()
+        for hyp in hypotheses:
+            if hyp.fault_type == "SMGF":
+                out = _simulate_smgf(circuit, val, hyp.gate_ids[0])
+            elif hyp.fault_type == "MMGF":
+                out = _simulate_mmgf(circuit, val, hyp.gate_ids)
+            else:  # PMGF
+                out = _simulate_pmgf(circuit, val,
+                                     hyp.gate_ids[0], hyp.missing_mask)
+            outputs.add(out)
 
-            outputs = set()
-            for hyp in hypotheses:
-                if hyp.fault_type == "SMGF":
-                    out = _simulate_smgf(circuit, val, hyp.gate_ids[0])
-                elif hyp.fault_type == "MMGF":
-                    out = _simulate_mmgf(circuit, val, hyp.gate_ids)
-                else:  # PMGF
-                    out = _simulate_pmgf(circuit, val,
-                                         hyp.gate_ids[0], hyp.missing_mask)
-                outputs.add(out)
+        diversity = len(outputs)
+        if diversity > best_score:
+            best_score = diversity
+            best_vec   = val
+            if diversity == len(hypotheses):  # perfect discrimination
+                break
 
-            diversity = len(outputs)
-            if diversity > best_score:
-                best_score = diversity
-                best_vec   = val
-                if diversity == len(hypotheses):  # perfect discrimination
-                    break
-
-        return best_vec
-
-    # ── Path B: Directed GA + DP hybrid (n > 16) ──────────────────────────────
-
-    # Step 1 — Determine the prefix boundary
-    #   The DP cache is built up to (but not including) the earliest gate
-    #   in any hypothesis.  Gates before this boundary are identical in all
-    #   fault scenarios and only need to be simulated once per input vector.
-    all_gate_ids = []
-    for hyp in hypotheses:
-        all_gate_ids.extend(hyp.gate_ids)
-
-    min_gate = min(all_gate_ids) if all_gate_ids else 0
-
-    # Step 2 — Seed the DP cache with the initial GA population
-    #   We generate GA_POPULATION_SIZE random candidate vectors upfront so
-    #   the prefix cache covers the entire initial population in one pass.
-    #   Subsequent crossover/mutation keeps chromosomes within [0, 2^n-1]
-    #   and any vector not in the cache falls back to on-the-fly computation
-    #   inside _simulate_hypothesis_with_cache.
-    rng = random.Random(42)  # reproducible seeding; caller-agnostic
-    max_val = (1 << n) - 1
-
-    # Seed candidate pool: initial population + biased seeds from gate controls
-    compiled_gates  = circuit["Compiled Rep"]
-    seed_set: Set[int] = set()
-
-    for hyp in hypotheses:
-        for gid in hyp.gate_ids:
-            if gid < len(compiled_gates):
-                gate = compiled_gates[gid]
-                ctrl = gate[1] if len(gate) > 1 else 0
-                seed_set.add(ctrl & max_val)
-                seed_set.add((ctrl ^ (ctrl & -ctrl if ctrl else 0)) & max_val)
-                seed_set.add((max_val ^ ctrl) & max_val)
-
-    seed_population = list(seed_set)
-    while len(seed_population) < GA_POPULATION_SIZE:
-        seed_population.append(rng.randint(0, max_val))
-
-    # Step 3 — Build DP prefix cache for all seed candidates
-    #   O(|seed_population| × min_gate) — runs once before the GA.
-    prefix_cache = _build_prefix_cache(circuit, seed_population, min_gate)
-
-    # Step 4 — Run the Directed GA engine
-    best_chrom = _run_directed_ga(
-        circuit          = circuit,
-        hypotheses       = hypotheses,
-        existing_test_set= existing_test_set,
-        prefix_cache     = prefix_cache,
-        start_gate       = min_gate,
-        rng              = rng,
-    )
-
-    return best_chrom
+    return best_vec
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -1202,31 +712,18 @@ class RSVSLocalizer:
 
             if resolve_equiv:
                 if verbose:
-                    if self.n_lines > 16:
-                        print(
-                            f"  Phase 5 — Finding discriminating vector via "
-                            f"GA+DP hybrid (n={self.n_lines} lines) …")
-                    else:
-                        print("  Phase 5 — Finding discriminating vector "
-                              "(exhaustive search) …")
-
+                    print("  Phase 5 — Finding discriminating vector …")
                 disc = _find_discriminating_vector(
                     self.circuit, candidates,
                     existing_test_set=set(self.test_set))
-
                 if disc is not None:
                     result.discriminating_vector = disc
                     if verbose:
-                        method = (
-                            "GA+DP" if self.n_lines > 16 else "exhaustive")
-                        print(
-                            f"    → Suggested [{method}]: "
-                            f"{disc}  (0b{disc:b})")
+                        print(f"    → Suggested: {disc}  (0b{disc:b})")
                 else:
                     result.notes.append(
-                        "Discriminating vector search returned no candidate. "
-                        "Equivalence class may be theoretically inseparable "
-                        "with single-vector discrimination.")
+                        "Circuit has >16 lines — use random sampling to find "
+                        "a discriminating vector.")
 
         if verbose:
             print(result)
