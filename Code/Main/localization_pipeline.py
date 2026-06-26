@@ -43,7 +43,7 @@ from batch_parsing_functions import parse_real_file
 from rsvs_fault_localizer    import RSVSLocalizer
 
 # ── Output settings (mirrors results_logger.py) ───────────────────────────────
-OUTPUT_DIR = r"Code\Main\Output"
+OUTPUT_DIR = "/content/reversible_circuit_testing/Code/Main/Output"
 
 
 # ══════════════════════════════════════════════════════════════════════════════
