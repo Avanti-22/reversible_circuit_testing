@@ -215,6 +215,7 @@ def _run_single_localization(
                 "No of Lines"         : circuit_dict["No of Lines"],
                 "No of Gates"         : circuit_dict["No of Gates"],
                 "Fault Model"         : fault_model,
+                "Base Test Vectors"   : str(test_set),  # <--- ADD THIS LINE
                 "Injected Fault Type" : hyp_type,
                 "Injected Gate IDs"   : str(hyp_gate_ids),
                 "Injected Missing Mask": hyp_missing_mask,
@@ -241,6 +242,7 @@ def _run_single_localization(
             "No of Lines"         : circuit_dict["No of Lines"],
             "No of Gates"         : circuit_dict["No of Gates"],
             "Fault Model"         : fault_model,
+            "Base Test Vectors"   : str(test_set),  # <--- ADD THIS LINE
             "Injected Fault Type" : "SUMMARY",
             "Injected Gate IDs"   : "",
             "Injected Missing Mask": "",
